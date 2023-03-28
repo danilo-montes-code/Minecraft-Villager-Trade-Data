@@ -9,11 +9,11 @@ This is a command line tool.
 * read data from JSON file
 * display the data on the command line
 
-## Using the script
-Ensure you have Python installed (this script has been checked to work with Python 1.11.2, but it should also work with other Python versions). Download Python [here](https://www.python.org/downloads/) if you do not have Python on your computer. If you are on Windows, **ensure you click the option to "add Python to PATH" when installing**, so your computer can find your Python installation.
+<!-- ## Using the script
+Ensure you have Python installed (this script has been checked to work with Python 1.11.2, but it should also work with other Python versions). Follow [this guide](https://gist.github.com/danilo-montes/2a2239035e689dfeafa0b7a59fed8c60) to install Python if you don't have it (Python does not come by default in Windows, so you probably need to install it). 
 
 Now, download the code of the project by clicking the "Code" button next to the "About" section and clicking "Download ZIP". Extract this zip where you want it, it's easiest to extract it to the Desktop.
-Open your terminal (cmd.exe) / bash and navigate to the extracted folder. If it is on the Desktop, it will be at `C:\Users\<USERNAME>\Desktop\Minecraft-Villager-Trade-Data-main`.
+Open your terminal (cmd.exe) / bash and navigate to the extracted folder. If it is on the Desktop, it will be at `C:\Users\<USERNAME>\Desktop\Minecraft-Villager-Trade-Data-main`. To navigate to this folder, type the command `cd Desktop`. 
 
 In `cmd.exe`:
 ```sh
@@ -23,7 +23,7 @@ py main.py
 In bash:
 ```sh
 $ py main.py
-```
+``` -->
 
 ## Planned Features
 * command line arguments for getting only given professions
