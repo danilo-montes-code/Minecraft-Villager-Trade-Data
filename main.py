@@ -1,4 +1,4 @@
-"""minecraft-villager-trades
+"""Minecraft-Villager-Trade-Data
 
 This script connects to the Minecraft wiki, parses the villager trade
 information, and saves it to a file for offline viewing.
