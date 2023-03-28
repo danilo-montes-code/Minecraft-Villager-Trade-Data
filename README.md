@@ -17,12 +17,12 @@ Open your terminal (cmd.exe) / bash and navigate to the extracted folder. If it 
 
 In `cmd.exe`:
 ```sh
-py minecraft-villager-trades.py
+py main.py
 ```
 
 In bash:
 ```sh
-$ py minecraft-villager-trades.py
+$ py main.py
 ```
 
 ## Planned Features
