@@ -16,6 +16,7 @@ from typing import TextIO
 from bs4 import BeautifulSoup
 from bs4 import Tag
 
+
 file_path = os.path.join(sys.path[0], 'villager-data.json')
 
 
