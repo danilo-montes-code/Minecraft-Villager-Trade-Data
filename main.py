@@ -15,8 +15,9 @@ import requests, json, os.path, sys, re
 from typing import TextIO
 from bs4 import BeautifulSoup, Tag
 
-file_path = os.path.join(sys.path[0], 'villager-data.json')
-
+file_path_villager_data = os.path.join(sys.path[0], 'villager-data.json')
+active = True
+display_mode = 'simple'
 
 
 #################################################
@@ -26,39 +27,130 @@ file_path = os.path.join(sys.path[0], 'villager-data.json')
 def main() -> None:
     """driver function"""
 
-    if not os.path.isfile(file_path):
-        if not create_file():
-            return
-
-        with open(file_path, 'w') as f:
-            dom = connect()
-            job_sites, trade_tables = get_list(dom)
-            data = make_into_dicts(job_sites, trade_tables)
-            write_to_file(f, data)
-
-
-    # open file
-    file = open_file()
-
-    if file is None:
-        return
+    clear()
+    print(  
+            'Welcome to Minecraft Villager Trade Data! '+ 
+            'This script saves villager trade data from the Minecraft Wiki ' +
+            'in a JSON file for use with this script, so that you can ' +
+            'view the information offline. The script will automatically ' +
+            'create the file for you if it does not exist.'
+        )
     
-    # display data from file
-    # TODO add different display options
-    # TODO add command line args
-    # TODO ask to output data to file
-    display_data(file)
+    while active:
+        choice = display_options()
+        if choice == -1:
+            clear()
+            continue
+        
+        if choice == 1:
+            display_all_trades()
+        elif choice == 2:
+            search()
+        elif choice == 3:
+            check_for_updates()
+        elif choice == 4:
+            change_display_mode()
+        else:
+            active = False
+    
 
      
 #################################################
 #                   Homepages                   #
 #################################################
 
+def display_options() -> None:
+    """Displays the menu options to the user
+    """
+    print(
+            'Please choose from the following options:\n' +
+            '(1) Display all trades\n',
+            '(2) Search by criteria\n',
+            '(3) Check for updates\n',
+            '(4) Change display mode\n',
+            '(5) Exit'
+        )
+    
+    try:
+        result = int(input())
+        if result < 1 and result > 4:
+            raise TypeError('Please enter an option from 1 to 4')
+    except Exception as e:
+        handle_error(e, 'display_options()')
+        return -1
+
+
+def display_all_trades():
+    """Displays all villager trades to the user
+    """
+    file = get_data()
+
+    if file is None:
+        exit(1)
+
+    display_data(file)
+
+
+def search():
+    pass
+
+
+def check_for_updates():
+    pass
+
+
+def change_display_mode() -> None:
+    """Prompts the user to change the display mode
+    """
+
+    print('Current display mode: ' + display_mode + '\n')
+    print(
+        'Display Modes\n' +
+        '-------------\n' +
+        '*Each display mode includes the features of the previous ones*\n' +
+        'Simple:\n' +
+        '   * item(s) wanted' +
+        '   * item(s) given' +
+        'Complex:\n' +
+        '   * amount of item(s) wanted' +
+        '   * amount of item(s) given' +
+        'Full:\n' +
+        '   * xp given to villager' +
+        '\n'
+    )
+    print(
+        'Choose a display mode:\n' + 
+        '(1) Simple\n' +
+        '(2) Complex\n' +
+        '(3) Full'
+    )
+    
 
 
 #################################################
 #                 File Handling                 #
 #################################################
+
+def get_data() -> TextIO:
+    """Gets the file containing villager info
+
+    Returns
+    -------
+    TextIO
+        file containing villager data
+    """
+    if not os.path.isfile(file_path_villager_data):
+        if not create_file():
+            return
+
+        with open(file_path_villager_data, 'w') as f:
+            dom = connect()
+            job_sites, trade_tables = get_list(dom)
+            data = make_into_dicts(job_sites, trade_tables)
+            write_to_file(f, data)
+
+    return open_file()
+
 
 def create_file() -> bool:
     """Create file for local storage of villager data
@@ -70,11 +162,12 @@ def create_file() -> bool:
         false, otherwise
     """
     try:
-        with open(file_path, 'w'):
+        with open(file_path_villager_data, 'w'):
             ret = True
         print('file created successfully')
 
-    except IOError:
+    except IOError as e:
+        handle_error(e, 'create_file()')
         print('error creating file')
         ret = False
 
@@ -93,7 +186,7 @@ def open_file() -> TextIO:
     """
 
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path_villager_data, 'r') as f:
             data = json.load(f)
         print('file opened successfully')
 
@@ -364,10 +457,21 @@ def display_data(villagers: list[dict]) -> None:
             print_centered( '└───────────────────────┘')
 
             for exchange in trade['exchanges']:
+                # simple
                 wanted = exchange['wanted']
                 given = exchange['given']
                 wanted_string = ', '.join(wanted['item'])
-                print_centered(wanted_string + ' -> ' + given['item'])
+                if display_mode == 'simple':
+                    print_centered(wanted_string + ' -> ' + given['item'])
+                    continue
+
+                # complex
+                if display_mode == 'complex':
+                    # TODO complex mode
+                    continue
+
+                # full
+                # TODO full mode
 
         print('=' * 50)
 
@@ -382,6 +486,35 @@ def print_centered(text: str) -> None:
     """
 
     print(text.center(50))
+
+
+def clear() -> None:
+    """Clears the interpreter console
+    """
+
+    os.system('cls')
+
+
+#################################################
+#                Error Handling                 #
+#################################################
+
+def handle_error(error: Exception, function: str) -> None:
+    """Displays error message and what function the error occurred in
+
+    Parameters
+    ----------
+    error : Exception
+        the exception that was raised
+    function : str
+        the name of the function that the expection was raised in
+    """
+
+    print('Error in function: ' + function)
+    print(type(error))
+    print(error)
+    input('Press Enter to continue\n')
+
 
 
 
