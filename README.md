@@ -42,6 +42,13 @@ $ py main.py
 ``` -->
 
 ## Planned Features
+* start menu
+    * display all trades
+    * search by item wanted
+    * search by item given
+    * search by profession
+    * check for updates
+        * update data
 * command line arguments for getting only given professions
 * different display options (simple, complex, full)
 * ask to write output to a file (https://stackoverflow.com/questions/47699023/how-to-write-console-output-on-text-file)

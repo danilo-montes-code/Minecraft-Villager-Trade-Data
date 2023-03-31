@@ -13,9 +13,7 @@ Dependencies:
 
 import requests, json, os.path, sys, re
 from typing import TextIO
-from bs4 import BeautifulSoup
-from bs4 import Tag
-
+from bs4 import BeautifulSoup, Tag
 
 file_path = os.path.join(sys.path[0], 'villager-data.json')
 
@@ -52,6 +50,11 @@ def main() -> None:
     display_data(file)
 
      
+#################################################
+#                   Homepages                   #
+#################################################
+
+
 
 #################################################
 #                 File Handling                 #
