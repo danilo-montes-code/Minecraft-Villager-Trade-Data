@@ -15,9 +15,9 @@ import requests, json, os.path, sys, re
 from typing import TextIO
 from bs4 import BeautifulSoup, Tag
 
-file_path_villager_data = os.path.join(sys.path[0], 'villager-data.json')
-active = True
-display_mode = 'simple'
+FILE_PATH_VILLAGER_DATA = os.path.join(sys.path[0], 'villager-data.json')
+FILE_PATH_CONFIG = os.path.join(sys.path[0], 'MVTD-config.json')
+DEVELOPING = True
 
 
 #################################################
@@ -27,13 +27,17 @@ display_mode = 'simple'
 def main() -> None:
     """driver function"""
 
+    active = True # controls the script runtime loop
+    display_mode = 'simple' # controls the display mode of data
+
     clear()
     print(  
-            'Welcome to Minecraft Villager Trade Data! '+ 
+            'Welcome to Minecraft Villager Trade Data!\n'+ 
             'This script saves villager trade data from the Minecraft Wiki ' +
-            'in a JSON file for use with this script, so that you can ' +
-            'view the information offline. The script will automatically ' +
-            'create the file for you if it does not exist.'
+            'in a JSON file for use with this script,\n' +
+            'so that you can view the information offline.\n' +
+            'The script will automatically ' +
+            'create the file for you if it does not exist.\n'
         )
     
     while active:
@@ -49,7 +53,7 @@ def main() -> None:
         elif choice == 3:
             check_for_updates()
         elif choice == 4:
-            change_display_mode()
+            display_mode = change_display_mode(display_mode)
         else:
             active = False
     
@@ -63,7 +67,7 @@ def display_options() -> None:
     """Displays the menu options to the user
     """
     print(
-            'Please choose from the following options:\n' +
+            'Please choose from the following options:\n',
             '(1) Display all trades\n',
             '(2) Search by criteria\n',
             '(3) Check for updates\n',
@@ -73,22 +77,27 @@ def display_options() -> None:
     
     try:
         result = int(input())
-        if result < 1 and result > 4:
-            raise TypeError('Please enter an option from 1 to 4')
+        if result < 1 or result > 5:
+            raise TypeError('number out of bounds')
     except Exception as e:
-        handle_error(e, 'display_options()')
+        handle_error(e, 'display_options()', 'Please enter an option from 1 to 5')
         return -1
 
 
-def display_all_trades():
+def display_all_trades(display_mode: str) -> None:
     """Displays all villager trades to the user
+
+    Parameters
+    ----------
+    display_mode : str
+        display mode of the data
     """
     file = get_data()
 
     if file is None:
         exit(1)
 
-    display_data(file)
+    display_data(file, display_mode)
 
 
 def search():
@@ -99,8 +108,13 @@ def check_for_updates():
     pass
 
 
-def change_display_mode() -> None:
+def change_display_mode(display_mode: str) -> None:
     """Prompts the user to change the display mode
+
+    Parameters
+    ----------
+    display_mode : str
+        display mode of the data
     """
 
     print('Current display mode: ' + display_mode + '\n')
@@ -139,11 +153,11 @@ def get_data() -> TextIO:
     TextIO
         file containing villager data
     """
-    if not os.path.isfile(file_path_villager_data):
+    if not os.path.isfile(FILE_PATH_VILLAGER_DATA):
         if not create_file():
             return
 
-        with open(file_path_villager_data, 'w') as f:
+        with open(FILE_PATH_VILLAGER_DATA, 'w') as f:
             dom = connect()
             job_sites, trade_tables = get_list(dom)
             data = make_into_dicts(job_sites, trade_tables)
@@ -162,7 +176,7 @@ def create_file() -> bool:
         false, otherwise
     """
     try:
-        with open(file_path_villager_data, 'w'):
+        with open(FILE_PATH_VILLAGER_DATA, 'w'):
             ret = True
         print('file created successfully')
 
@@ -186,7 +200,7 @@ def open_file() -> TextIO:
     """
 
     try:
-        with open(file_path_villager_data, 'r') as f:
+        with open(FILE_PATH_VILLAGER_DATA, 'r') as f:
             data = json.load(f)
         print('file opened successfully')
 
@@ -433,13 +447,15 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
 #                    Display                    #
 #################################################
 
-def display_data(villagers: list[dict]) -> None:
+def display_data(villagers: list[dict], display_mode: str) -> None:
     """Displays the given villager data
 
     Parameters
     ----------
     villagers : list[dict]
         list of infomation regarding villager trades to be printed
+    display_mode : str
+        display mode of the data
     """
 
     # ─ │ ┌ ┐ └ ┘
@@ -499,8 +515,10 @@ def clear() -> None:
 #                Error Handling                 #
 #################################################
 
-def handle_error(error: Exception, function: str) -> None:
-    """Displays error message and what function the error occurred in
+def handle_error(error: Exception, function: str, default_error: str) -> None:
+    """Displays error message and what function the error occurred in.
+    Either displays the full error message or just the error text,
+    depending on whether the script is being developed or not.
 
     Parameters
     ----------
@@ -508,11 +526,17 @@ def handle_error(error: Exception, function: str) -> None:
         the exception that was raised
     function : str
         the name of the function that the expection was raised in
+    default_error : str
+        the error message to be displayed to the user, non-technical
+        such that the user can more obviously know what to do
     """
 
-    print('Error in function: ' + function)
-    print(type(error))
-    print(error)
+    if DEVELOPING:
+        print('Error in function: ' + function)
+        print(type(error))
+        print(error)
+    else:
+        print(default_error)
     input('Press Enter to continue\n')
 
 
