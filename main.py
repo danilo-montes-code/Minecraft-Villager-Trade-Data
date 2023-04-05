@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup, Tag
 
 FILE_PATH_VILLAGER_DATA = os.path.join(sys.path[0], 'villager-data.json')
 FILE_PATH_CONFIG = os.path.join(sys.path[0], 'MVTD-config.json')
+FILE_PATH_OUTPUT = os.path.join(sys.path[0], 'data-output.txt')
 DEVELOPING = True
 
 
@@ -25,7 +26,7 @@ DEVELOPING = True
 #################################################
 
 def main() -> None:
-    """driver function"""
+    """Driver function, runs the main script loop"""
 
     active = True # controls the script runtime loop
     display_mode = 'simple' # controls the display mode of data
@@ -47,7 +48,7 @@ def main() -> None:
             continue
         
         if choice == 1:
-            display_all_trades()
+            display_all_trades(display_mode)
         elif choice == 2:
             search()
         elif choice == 3:
@@ -56,6 +57,8 @@ def main() -> None:
             display_mode = change_display_mode(display_mode)
         else:
             active = False
+            continue
+        etc()
     
 
      
@@ -64,8 +67,8 @@ def main() -> None:
 #################################################
 
 def display_options() -> None:
-    """Displays the menu options to the user
-    """
+    """Displays the menu options to the user"""
+
     print(
             'Please choose from the following options:\n',
             '(1) Display all trades\n',
@@ -79,6 +82,7 @@ def display_options() -> None:
         result = int(input())
         if result < 1 or result > 5:
             raise TypeError('number out of bounds')
+        return result
     except Exception as e:
         handle_error(e, 'display_options()', 'Please enter an option from 1 to 5')
         return -1
@@ -92,9 +96,11 @@ def display_all_trades(display_mode: str) -> None:
     display_mode : str
         display mode of the data
     """
+    
     file = get_data()
 
     if file is None:
+        print('Exiting...')
         exit(1)
 
     display_data(file, display_mode)
@@ -145,17 +151,17 @@ def change_display_mode(display_mode: str) -> None:
 #                 File Handling                 #
 #################################################
 
-def get_data() -> TextIO:
+def get_data() -> list[dict]:
     """Gets the file containing villager info
 
     Returns
     -------
-    TextIO
-        file containing villager data
+    list
+        list of dicts containing villager data
     """
     if not os.path.isfile(FILE_PATH_VILLAGER_DATA):
-        if not create_file():
-            return
+        if not create_file(FILE_PATH_VILLAGER_DATA):
+            return None
 
         with open(FILE_PATH_VILLAGER_DATA, 'w') as f:
             dom = connect()
@@ -163,49 +169,69 @@ def get_data() -> TextIO:
             data = make_into_dicts(job_sites, trade_tables)
             write_to_file(f, data)
 
-    return open_file()
+    return open_file(FILE_PATH_VILLAGER_DATA)
 
 
-def create_file() -> bool:
+def create_file(path: str) -> bool:
     """Create file for local storage of villager data
+
+    Parameters
+    ----------
+    path : str
+        path of the file to be created
 
     Returns
     -------
     bool
-        true,  if file was created successfully /
+        true,  if file was created successfully \n
         false, otherwise
     """
     try:
-        with open(FILE_PATH_VILLAGER_DATA, 'w'):
+        with open(path, 'w'):
             ret = True
         print('file created successfully')
 
     except IOError as e:
-        handle_error(e, 'create_file()')
-        print('error creating file')
+        handle_error(e, 'create_file()', 'error creating file')
+        ret = False
+
+    except Exception as e:
+        handle_error(e, 'create_file()', 'erroneous error creating file')
         ret = False
 
     finally:
         return ret
 
 
-def open_file() -> TextIO:
-    """Opens file for reading
+def open_file(path: str) -> list:
+    """Opens JSON file for reading
+
+    Parameters
+    ----------
+    path : str
+        path of the file to be created
 
     Returns
     -------
-    TextIO
-        file that was opened,
+    list
+        data from file \n
         None, if there was an error opening the file
     """
 
     try:
-        with open(FILE_PATH_VILLAGER_DATA, 'r') as f:
-            data = json.load(f)
+        with open(path, 'r') as f:
+            if path.endswith('.json'):
+                data = json.load(f)
+            else:
+                data = f.readlines()
         print('file opened successfully')
 
-    except IOError:
-        print('error: could not read from file')
+    except IOError as e:
+        handle_error(e, 'open_file()', 'error opening file')
+        data = None
+
+    except Exception as e:
+        handle_error(e, 'open_file()', 'erroneous error opening file')
         data = None
 
     finally:
@@ -512,7 +538,7 @@ def clear() -> None:
 
 
 #################################################
-#                Error Handling                 #
+#                Runtime Handling               #
 #################################################
 
 def handle_error(error: Exception, function: str, default_error: str) -> None:
@@ -539,6 +565,11 @@ def handle_error(error: Exception, function: str, default_error: str) -> None:
         print(default_error)
     input('Press Enter to continue\n')
 
+
+def etc() -> None:
+    """Displays prompt to user to press Enter to continue"""
+
+    input('Press Enter to continue\n')
 
 
 
