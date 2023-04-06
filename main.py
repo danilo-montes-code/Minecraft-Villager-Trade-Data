@@ -155,24 +155,25 @@ def change_display_mode(display_mode: str) -> str:
     )
 
     choice = -1
+    options = [
+        'Simple',
+        'Complex',
+        'Full'
+    ]
 
     while choice == -1:
         choice = display_options(
             'Choose a display mode',
-            [
-                'Simple',
-                'Complex',
-                'Full'
-            ],
+            options,
             backable=True
         )
 
-    return choice
+    return options[choice-1]
     
 
 
 #################################################
-#                 File Handling                 #
+#               Homepage Functions              #
 #################################################
 
 def get_data() -> list[dict]:
@@ -191,10 +192,15 @@ def get_data() -> list[dict]:
             dom = connect()
             job_sites, trade_tables = get_list(dom)
             data = make_into_dicts(job_sites, trade_tables)
-            write_to_file(f, data)
+            write_to_file_json(f, data)
 
-    return open_file(FILE_PATH_VILLAGER_DATA)
+    return open_file_json(FILE_PATH_VILLAGER_DATA)
 
+
+
+#################################################
+#                 File Handling                 #
+#################################################
 
 def create_file(path: str) -> bool:
     """Create file for local storage of villager data
@@ -227,27 +233,24 @@ def create_file(path: str) -> bool:
         return ret
 
 
-def open_file(path: str) -> list:
+def open_file_json(path: str) -> list[dict]:
     """Opens JSON file for reading
 
     Parameters
     ----------
     path : str
-        path of the file to be created
+        path of the file to be opened
 
     Returns
     -------
-    list
+    list[dict]
         data from file \n
         None, if there was an error opening the file
     """
 
     try:
         with open(path, 'r') as f:
-            if path.endswith('.json'):
-                data = json.load(f)
-            else:
-                data = f.readlines()
+            data = json.load(f)
         print('file opened successfully')
 
     except IOError as e:
@@ -262,7 +265,39 @@ def open_file(path: str) -> list:
         return data
     
 
-def write_to_file(file: TextIO, data: list[dict]) -> None:
+def open_file_txt(path: str) -> list[str]:
+    """Opens text file for reading
+
+    Parameters
+    ----------
+    path : str
+        path of the file to be opened
+
+    Returns
+    -------
+    list[str]
+        lines from file \n
+        None, if there was an error opening the file
+    """
+
+    try:
+        with open(path, 'r') as f:
+            data = f.readlines()
+        print('file opened successfully')
+
+    except IOError as e:
+        handle_error(e, 'open_file()', 'error opening file')
+        data = None
+
+    except Exception as e:
+        handle_error(e, 'open_file()', 'erroneous error opening file')
+        data = None
+
+    finally:
+        return data
+    
+
+def write_to_file_json(file: TextIO, data: list[dict]) -> None:
     """Writes JSON to file
     
     Parameters
@@ -277,8 +312,29 @@ def write_to_file(file: TextIO, data: list[dict]) -> None:
         json.dump(data, file, ensure_ascii=False, indent=2)
         print('success writing to file')
 
-    except:
-        print('error writing to file')
+    except Exception as e:
+        handle_error(e, 'write_to_file_json()', 'error writing to file')
+    
+    return
+
+
+def write_to_file_txt(file: TextIO, data: list[str]) -> None:
+    """Writes text to file
+    
+    Parameters
+    ----------
+    file : TextIO
+        file to write data to
+    data : list[str]
+        lines of text to write to file
+    """
+    
+    try:
+        file.writelines(line + '\n' for line in data)
+        print('success writing to file')
+
+    except Exception as e:
+        handle_error(e, 'write_to_file_text()', 'error writing to file')
     
     return
 
