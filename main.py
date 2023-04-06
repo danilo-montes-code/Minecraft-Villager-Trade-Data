@@ -21,6 +21,7 @@ FILE_PATH_OUTPUT = os.path.join(sys.path[0], 'data-output.txt')
 DEVELOPING = True
 
 
+
 #################################################
 #                     Main                      #
 #################################################
@@ -28,7 +29,7 @@ DEVELOPING = True
 def main() -> None:
     """Driver function, runs the main script loop"""
 
-    active = True # controls the script runtime loop
+    active = True           # controls the script runtime loop
     display_mode = 'simple' # controls the display mode of data
 
     clear()
@@ -42,7 +43,7 @@ def main() -> None:
         )
     
     while active:
-        choice = display_options()
+        choice = display_menu()
         if choice == -1:
             clear()
             continue
@@ -59,6 +60,8 @@ def main() -> None:
             active = False
             continue
         etc()
+
+    return
     
 
      
@@ -66,26 +69,31 @@ def main() -> None:
 #                   Homepages                   #
 #################################################
 
-def display_options() -> None:
-    """Displays the menu options to the user"""
+def display_menu() -> int:
+    """Displays the menu options to the user and gets their response
+    
+    Returns
+    -------
+    int
+        the choice the user selected
+    """
 
-    print(
-            'Please choose from the following options:\n',
-            '(1) Display all trades\n',
-            '(2) Search by criteria\n',
-            '(3) Check for updates\n',
-            '(4) Change display mode\n',
-            '(5) Exit'
+    choice = -1
+
+    while choice == -1:
+        choice = display_options(
+            'Please choose from the following options',
+            [
+                'Display all trades',
+                'Search by criteria',
+                'Check for updates',
+                'Change display mode',
+                'Exit'
+            ]
         )
     
-    try:
-        result = int(input())
-        if result < 1 or result > 5:
-            raise TypeError('number out of bounds')
-        return result
-    except Exception as e:
-        handle_error(e, 'display_options()', 'Please enter an option from 1 to 5')
-        return -1
+    return choice
+        
 
 
 def display_all_trades(display_mode: str) -> None:
@@ -94,7 +102,7 @@ def display_all_trades(display_mode: str) -> None:
     Parameters
     ----------
     display_mode : str
-        display mode of the data
+        display mode of the data display
     """
     
     file = get_data()
@@ -105,6 +113,8 @@ def display_all_trades(display_mode: str) -> None:
 
     display_data(file, display_mode)
 
+    return
+
 
 def search():
     pass
@@ -114,16 +124,21 @@ def check_for_updates():
     pass
 
 
-def change_display_mode(display_mode: str) -> None:
+def change_display_mode(display_mode: str) -> str:
     """Prompts the user to change the display mode
 
     Parameters
     ----------
     display_mode : str
         display mode of the data
+
+    Returns
+    -------
+    str
+        updated display mode of the data
     """
 
-    print('Current display mode: ' + display_mode + '\n')
+    print(f'Current display mode: {display_mode}\n')
     print(
         'Display Modes\n' +
         '-------------\n' +
@@ -138,12 +153,21 @@ def change_display_mode(display_mode: str) -> None:
         '   * xp given to villager' +
         '\n'
     )
-    print(
-        'Choose a display mode:\n' + 
-        '(1) Simple\n' +
-        '(2) Complex\n' +
-        '(3) Full'
-    )
+
+    choice = -1
+
+    while choice == -1:
+        choice = display_options(
+            'Choose a display mode',
+            [
+                'Simple',
+                'Complex',
+                'Full'
+            ],
+            backable=True
+        )
+
+    return choice
     
 
 
@@ -255,6 +279,8 @@ def write_to_file(file: TextIO, data: list[dict]) -> None:
 
     except:
         print('error writing to file')
+    
+    return
 
 
 
@@ -304,8 +330,6 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
         job_sites.append(job.get_text().lower())
 
     job_sites = job_sites[:13]
-
-
 
     # get tables related to villager trades
     tables = dom.select('h3 + p + figure + table.wikitable')
@@ -368,7 +392,7 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
 
     Returns
     -------
-    list
+    list[dict]
         a list of dicts holding the data of villager trades
     """
 
@@ -424,7 +448,7 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
                     first_row = False
 
                 # actually get the trade info
-                remove_notes = '\[note \d\]'
+                remove_notes = '\[note \d+\]'
                 item_wanted           = [re.sub(remove_notes, '', columns[0].get_text().strip())]
                 default_quantity      = [re.sub(remove_notes, '', columns[1].get_text().strip())]
                 price_multiplier      = re.sub(remove_notes, '', columns[2].get_text().strip())
@@ -462,10 +486,7 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
 
         villager_data.append(info)
 
-
-
     return villager_data
-
 
 
 
@@ -517,6 +538,8 @@ def display_data(villagers: list[dict], display_mode: str) -> None:
 
         print('=' * 50)
 
+    return
+
 
 def print_centered(text: str) -> None:
     """Prints the given text with a center value of 50
@@ -528,13 +551,15 @@ def print_centered(text: str) -> None:
     """
 
     print(text.center(50))
+    return
 
 
 def clear() -> None:
-    """Clears the interpreter console
-    """
+    """Clears the interpreter console"""
 
     os.system('cls')
+    return
+
 
 
 #################################################
@@ -563,13 +588,61 @@ def handle_error(error: Exception, function: str, default_error: str) -> None:
         print(error)
     else:
         print(default_error)
-    input('Press Enter to continue\n')
+
+    etc()
+    return
+
+
+def display_options(prompt: str, options: list[str], backable: bool=False) -> int:
+    """Displays the list of options to the user.
+
+    Parameters
+    ----------
+    prompt : str
+        question prompt for the user
+    options : list[str]
+        ordered list of options for the user
+    backable : bool
+        True,  if the user can go back from the options screen 
+        / False, otherwise 
+
+    Returns
+    -------
+    int
+        the option selected by the user \n
+        -1 if error raised or invalid response
+    """
+    
+    last_option = len(options)
+
+    print(f'{prompt}:')
+    if backable:
+        print(' (0) Go back')
+
+    for i in range(last_option):
+        print(f' ({i}) {list[i]}')
+
+    try:
+        result = int(input())
+        if backable and result == 0:
+            return result
+        if result < 1 or result > last_option:
+            raise TypeError('number out of bounds')
+        return result
+    
+    except Exception as e:
+        if backable:
+            handle_error(e, 'display_options()', f'Please enter an option from 0 to {last_option}')
+        else:
+            handle_error(e, 'display_options()', f'Please enter an option from 1 to {last_option}')
+        return -1
 
 
 def etc() -> None:
     """Displays prompt to user to press Enter to continue"""
 
     input('Press Enter to continue\n')
+    return
 
 
 
