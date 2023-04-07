@@ -50,6 +50,7 @@ def main() -> None:
         
         if choice == 1:
             display_all_trades(display_mode)
+            prompt_to_save(display_mode)
         elif choice == 2:
             search()
         elif choice == 3:
@@ -184,6 +185,7 @@ def get_data() -> list[dict]:
     list
         list of dicts containing villager data
     """
+
     if not os.path.isfile(FILE_PATH_VILLAGER_DATA):
         if not create_file(FILE_PATH_VILLAGER_DATA):
             return None
@@ -195,6 +197,36 @@ def get_data() -> list[dict]:
             write_to_file_json(f, data)
 
     return open_file_json(FILE_PATH_VILLAGER_DATA)
+
+
+def prompt_to_save(display_mode: str, path: str=FILE_PATH_OUTPUT) -> None:
+    """Prompt the user to save the console output to a file
+
+    Parameters
+    ----------
+    path : str
+        the path of the file to save into
+    display_mode : str
+        display mode of the data display
+    """
+
+    display_options(
+        'Would you like to save the output to a file?',
+        [
+            'Yes',
+            'No'
+        ],
+        backable=True
+    )
+
+    if create_file(path):
+        with open(path, 'w') as f:
+            out = sys.stdout
+            sys.stdout = f
+            display_all_trades(display_mode)
+            sys.stdout = out
+
+    return
 
 
 
@@ -251,7 +283,6 @@ def open_file_json(path: str) -> list[dict]:
     try:
         with open(path, 'r') as f:
             data = json.load(f)
-        print('file opened successfully')
 
     except IOError as e:
         handle_error(e, 'open_file()', 'error opening file')
@@ -283,7 +314,6 @@ def open_file_txt(path: str) -> list[str]:
     try:
         with open(path, 'r') as f:
             data = f.readlines()
-        print('file opened successfully')
 
     except IOError as e:
         handle_error(e, 'open_file()', 'error opening file')
@@ -564,16 +594,16 @@ def display_data(villagers: list[dict], display_mode: str) -> None:
     # ─ │ ┌ ┐ └ ┘
 
     for profession in villagers:
-        print_centered( '┌──────────────────────────────────────┐')
-        print_centered(f'│{profession["profession"].title().center(38)}│')
-        print_centered( '└──────────────────────────────────────┘')
+        print_centered( '+--------------------------------------+')
+        print_centered(f'|{profession["profession"].title().center(38)}|')
+        print_centered( '+--------------------------------------+')
 
         trades = profession['trades']
 
         for trade in trades:
-            print_centered( '┌───────────────────────┐')
-            print_centered(f'│{trade["level"].title().center(23)}│')
-            print_centered( '└───────────────────────┘')
+            print_centered( '+-----------------------+')
+            print_centered(f'|{trade["level"].title().center(23)}|')
+            print_centered( '+-----------------------+')
 
             for exchange in trade['exchanges']:
                 # simple
@@ -676,7 +706,7 @@ def display_options(prompt: str, options: list[str], backable: bool=False) -> in
         print(' (0) Go back')
 
     for i in range(last_option):
-        print(f' ({i}) {list[i]}')
+        print(f' ({i+1}) {options[i]}')
 
     try:
         result = int(input())
