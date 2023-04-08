@@ -79,23 +79,17 @@ def display_menu() -> int:
         the choice the user selected
     """
 
-    choice = -1
-
-    while choice == -1:
-        choice = display_options(
-            'Please choose from the following options',
-            [
-                'Display all trades',
-                'Search by criteria',
-                'Check for updates',
-                'Change display mode',
-                'Exit'
-            ]
-        )
-    
-    return choice
+    return display_options(
+        'Please choose from the following options',
+        [
+            'Display all trades',
+            'Search by criteria',
+            'Check for updates',
+            'Change display mode',
+            'Exit'
+        ]
+    )
         
-
 
 def display_all_trades(display_mode: str) -> None:
     """Displays all villager trades to the user
@@ -155,19 +149,20 @@ def change_display_mode(display_mode: str) -> str:
         '\n'
     )
 
-    choice = -1
     options = [
         'Simple',
         'Complex',
         'Full'
     ]
 
-    while choice == -1:
-        choice = display_options(
-            'Choose a display mode',
-            options,
-            backable=True
-        )
+    choice = display_options(
+        'Choose a display mode',
+        options,
+        backable=True
+    )
+
+    if choice == 0:
+        return display_mode
 
     return options[choice-1]
     
@@ -210,21 +205,22 @@ def prompt_to_save(display_mode: str, path: str=FILE_PATH_OUTPUT) -> None:
         display mode of the data display
     """
 
-    display_options(
+    option = display_options(
         'Would you like to save the output to a file?',
         [
             'Yes',
             'No'
         ],
-        backable=True
+        backable=False
     )
 
-    if create_file(path):
-        with open(path, 'w') as f:
-            out = sys.stdout
-            sys.stdout = f
-            display_all_trades(display_mode)
-            sys.stdout = out
+    if option == 1:
+        if create_file(path):
+            with open(path, 'w') as f:
+                out = sys.stdout
+                sys.stdout = f
+                display_all_trades(display_mode)
+                sys.stdout = out
 
     return
 
@@ -681,6 +677,7 @@ def handle_error(error: Exception, function: str, default_error: str) -> None:
 
 def display_options(prompt: str, options: list[str], backable: bool=False) -> int:
     """Displays the list of options to the user.
+    Repeats until a valid option is given.
 
     Parameters
     ----------
@@ -700,28 +697,30 @@ def display_options(prompt: str, options: list[str], backable: bool=False) -> in
     """
     
     last_option = len(options)
+    option = -1
 
-    print(f'{prompt}:')
-    if backable:
-        print(' (0) Go back')
-
-    for i in range(last_option):
-        print(f' ({i+1}) {options[i]}')
-
-    try:
-        result = int(input())
-        if backable and result == 0:
-            return result
-        if result < 1 or result > last_option:
-            raise TypeError('number out of bounds')
-        return result
-    
-    except Exception as e:
+    while option == -1:
+        print(f'{prompt}:')
         if backable:
-            handle_error(e, 'display_options()', f'Please enter an option from 0 to {last_option}')
-        else:
-            handle_error(e, 'display_options()', f'Please enter an option from 1 to {last_option}')
-        return -1
+            print(' (0) Go back')
+
+        for i in range(last_option):
+            print(f' ({i+1}) {options[i]}')
+
+        try:
+            option = int(input())
+            if backable and option == 0:
+                continue
+            if option < 1 or option > last_option:
+                raise TypeError('number out of bounds')
+        
+        except Exception as e:
+            if backable:
+                handle_error(e, 'display_options()', f'Please enter an option from 0 to {last_option}')
+            else:
+                handle_error(e, 'display_options()', f'Please enter an option from 1 to {last_option}')
+        
+    return option
 
 
 def etc() -> None:
