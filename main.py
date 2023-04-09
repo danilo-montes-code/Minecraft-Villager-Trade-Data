@@ -412,7 +412,9 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
     ##### simple as it should be
 
     # get job sites for each profession
-    job_sites_span = dom.select('h3 ~ p > a[href^="/wiki/"] > span > span.sprite-text')
+    job_sites_span = dom.select(
+        'h3 ~ p > a[href^="/wiki/"] > span > span.sprite-text'
+    )
 
     job_sites = []
     for job in job_sites_span:
@@ -494,7 +496,8 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
         table_rows = table.select('tr')
 
         # tr[0] = <PROFESSION> Economic Trade
-        profession = table_rows[0].contents[1].get_text().split(' ')[0].lower().strip()
+        profession = table_rows[0].contents[1] \
+                    .get_text().split(' ')[0].lower().strip()
         info['profession'] = profession
         info['job-site-block'] = job_sites[i]
 
@@ -529,7 +532,10 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
             for row in rows:
 
                 exchange_info = {}
-                columns = [content for content in row.contents if content.get_text() != '\n']
+                columns = [
+                    content for content in row.contents 
+                    if content.get_text() != '\n'
+                ]
 
                 # first row has additional table header changing format
                 if first_row:
@@ -542,35 +548,59 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
                 wanted = columns[0]
                 # if there are multiple items wanted for a trade
                 if wanted.find('br'):
-                    if not (profession == 'fisherman' and trade_level_string == 'master'):
+                    if not (profession == 'fisherman'
+                            and trade_level_string == 'master'):
                         item_wanted  = [
                             re.sub(remove_notes, ' ', item) 
-                            for item in columns[0].get_text(separator='\n', strip=True).split('\n')
+                            for item in columns[0]
+                            .get_text(separator='\n', strip=True).split('\n')
                         ]
-                    # handle case of fisherman trade with multiple possible items given
+                    # handle case of fisherman trade with 
+                    # multiple possible items given
                     else:
-                        res = ' '.join(columns[0].get_text(separator='\n', strip=True).split('\n'))
+                        res = ' '.join(
+                            columns[0].get_text(separator='\n', strip=True)
+                            .split('\n')
+                        )
                         item_wanted  = [re.sub(remove_notes, ' ', res).strip()]
 
                     default_quantity = [
                         re.sub(remove_notes, ' ', quantity)
-                        for quantity in columns[1].get_text(separator='\n', strip=True).split('\n')
+                        for quantity 
+                        in columns[1].get_text(separator='\n', strip=True)
+                        .split('\n')
                     ]
                 else: 
-                    item_wanted       = [re.sub(remove_notes, ' ', columns[0].get_text(strip=True)).strip()]
-                    default_quantity  = [re.sub(remove_notes, ' ', columns[1].get_text(strip=True)).strip()]
+                    item_wanted       = [re.sub(remove_notes, ' ', 
+                                                columns[0]
+                                                .get_text(strip=True)).strip()]
+                    default_quantity  = [re.sub(remove_notes, ' ', 
+                                                columns[1]
+                                                .get_text(strip=True)).strip()]
 
-                price_multiplier      = re.sub(remove_notes, ' ', columns[2].get_text(strip=True)).strip()
+                price_multiplier      = re.sub(remove_notes, ' ', 
+                                               columns[2]
+                                               .get_text(strip=True)).strip()
 
                 give = columns[3]
                 if give.find('br'):
-                    res = ' '.join(give.get_text(separator='\n', strip=True).split('\n'))
+                    res = ' '.join(
+                        give.get_text(separator='\n', strip=True).split('\n')
+                    )
                     item_given        = re.sub(remove_notes, ' ', res).strip()
                 else:
-                    item_given        = re.sub(remove_notes, ' ', columns[3].get_text(strip=True)).strip()
-                quantity              = re.sub(remove_notes, ' ', columns[4].get_text(strip=True)).strip()
-                trades_until_disabled = re.sub(remove_notes, ' ', columns[5].get_text(strip=True)).strip()
-                xp_to_villager        = re.sub(remove_notes, ' ', columns[6].get_text(strip=True)).strip()
+                    item_given        = re.sub(remove_notes, ' ', 
+                                               columns[3]
+                                               .get_text(strip=True)).strip()
+                quantity              = re.sub(remove_notes, ' ', 
+                                               columns[4]
+                                               .get_text(strip=True)).strip()
+                trades_until_disabled = re.sub(remove_notes, ' ', 
+                                               columns[5]
+                                               .get_text(strip=True)).strip()
+                xp_to_villager        = re.sub(remove_notes, ' ', 
+                                               columns[6]
+                                               .get_text(strip=True)).strip()
 
                 exchange_info['wanted'] = {
                     'item'             : item_wanted,
@@ -704,7 +734,10 @@ def handle_error(error: Exception, function: str, default_error: str) -> None:
     return
 
 
-def display_options(prompt: str, options: list[str], backable: bool=False) -> int:
+def display_options(
+        prompt: str, 
+        options: list[str], 
+        backable: bool=False) -> int:
     """Displays the list of options to the user.
     Repeats until a valid option is given.
 
@@ -745,9 +778,11 @@ def display_options(prompt: str, options: list[str], backable: bool=False) -> in
         
         except Exception as e:
             if backable:
-                handle_error(e, 'display_options()', f'Please enter an option from 0 to {last_option}')
+                handle_error(e, 'display_options()', 
+                             f'Please enter an option from 0 to {last_option}')
             else:
-                handle_error(e, 'display_options()', f'Please enter an option from 1 to {last_option}')
+                handle_error(e, 'display_options()', 
+                             f'Please enter an option from 1 to {last_option}')
         
     return option
 
