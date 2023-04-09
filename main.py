@@ -51,6 +51,7 @@ def main() -> None:
         if choice == 1:
             display_all_trades(display_mode)
             prompt_to_save(display_mode)
+            clear()
         elif choice == 2:
             search()
         elif choice == 3:
@@ -60,7 +61,6 @@ def main() -> None:
         else:
             active = False
             continue
-        etc()
 
     return
     
@@ -133,20 +133,22 @@ def change_display_mode(display_mode: str) -> str:
         updated display mode of the data
     """
 
+    clear()
     print(f'Current display mode: {display_mode}\n')
     print(
         'Display Modes\n' +
         '-------------\n' +
-        '*Each display mode includes the features of the previous ones*\n' +
+        '*Each display mode includes the features of the previous ones*\n\n' +
         'Simple:\n' +
-        '   * item(s) wanted' +
-        '   * item(s) given' +
+        '   * item(s) wanted\n' +
+        '   * item(s) given\n' +
         'Complex:\n' +
-        '   * amount of item(s) wanted' +
-        '   * amount of item(s) given' +
+        '   * amount of item(s) wanted\n' +
+        '   * amount of item(s) given\n' +
+        '   * price multiplier\n' +
         'Full:\n' +
-        '   * xp given to villager' +
-        '\n'
+        '   * xp given to villager\n' +
+        '   * trades until disabled\n'
     )
 
     options = [
@@ -162,8 +164,12 @@ def change_display_mode(display_mode: str) -> str:
     )
 
     if choice == 0:
+        clear()
         return display_mode
-
+    
+    print(f'display mode now: {options[choice-1]}')
+    etc()
+    clear()
     return options[choice-1]
     
 
@@ -221,6 +227,7 @@ def prompt_to_save(display_mode: str, path: str=FILE_PATH_OUTPUT) -> None:
                 sys.stdout = f
                 display_all_trades(display_mode)
                 sys.stdout = out
+            etc()
 
     return
 
@@ -522,27 +529,48 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
             for row in rows:
 
                 exchange_info = {}
+                columns = [content for content in row.contents if content.get_text() != '\n']
 
                 # first row has additional table header changing format
-                columns = [content for content in row.contents if content.get_text() != '\n']
                 if first_row:
                     columns = columns[1:]
                     first_row = False
 
                 # actually get the trade info
                 remove_notes = '\[note \d+\]'
-                item_wanted           = [re.sub(remove_notes, '', columns[0].get_text().strip())]
-                default_quantity      = [re.sub(remove_notes, '', columns[1].get_text().strip())]
-                price_multiplier      = re.sub(remove_notes, '', columns[2].get_text().strip())
-                item_given            = re.sub(remove_notes, '', columns[3].get_text().strip())
-                quantity              = re.sub(remove_notes, '', columns[4].get_text().strip())
-                trades_until_disabled = re.sub(remove_notes, '', columns[5].get_text().strip())
-                xp_to_villager        = re.sub(remove_notes, '', columns[6].get_text().strip())
 
+                wanted = columns[0]
                 # if there are multiple items wanted for a trade
-                if '\n' in item_wanted[0]:
-                    item_wanted = item_wanted[0].split('\n')
-                    default_quantity = default_quantity[0].split(' ')
+                if wanted.find('br'):
+                    if not (profession == 'fisherman' and trade_level_string == 'master'):
+                        item_wanted  = [
+                            re.sub(remove_notes, ' ', item) 
+                            for item in columns[0].get_text(separator='\n', strip=True).split('\n')
+                        ]
+                    # handle case of fisherman trade with multiple possible items given
+                    else:
+                        res = ' '.join(columns[0].get_text(separator='\n', strip=True).split('\n'))
+                        item_wanted  = [re.sub(remove_notes, ' ', res).strip()]
+
+                    default_quantity = [
+                        re.sub(remove_notes, ' ', quantity)
+                        for quantity in columns[1].get_text(separator='\n', strip=True).split('\n')
+                    ]
+                else: 
+                    item_wanted       = [re.sub(remove_notes, ' ', columns[0].get_text(strip=True)).strip()]
+                    default_quantity  = [re.sub(remove_notes, ' ', columns[1].get_text(strip=True)).strip()]
+
+                price_multiplier      = re.sub(remove_notes, ' ', columns[2].get_text(strip=True)).strip()
+
+                give = columns[3]
+                if give.find('br'):
+                    res = ' '.join(give.get_text(separator='\n', strip=True).split('\n'))
+                    item_given        = re.sub(remove_notes, ' ', res).strip()
+                else:
+                    item_given        = re.sub(remove_notes, ' ', columns[3].get_text(strip=True)).strip()
+                quantity              = re.sub(remove_notes, ' ', columns[4].get_text(strip=True)).strip()
+                trades_until_disabled = re.sub(remove_notes, ' ', columns[5].get_text(strip=True)).strip()
+                xp_to_villager        = re.sub(remove_notes, ' ', columns[6].get_text(strip=True)).strip()
 
                 exchange_info['wanted'] = {
                     'item'             : item_wanted,
@@ -606,13 +634,14 @@ def display_data(villagers: list[dict], display_mode: str) -> None:
                 wanted = exchange['wanted']
                 given = exchange['given']
                 wanted_string = ', '.join(wanted['item'])
+
+                print_centered(wanted_string + ' -> ' + given['item'])
                 if display_mode == 'simple':
-                    print_centered(wanted_string + ' -> ' + given['item'])
                     continue
 
                 # complex
+                # TODO complex mode
                 if display_mode == 'complex':
-                    # TODO complex mode
                     continue
 
                 # full
