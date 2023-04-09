@@ -13,7 +13,6 @@ This is a command line tool.
     * display all trades
     * check for updates
         * update data
-* different display options (simple, complex, full)
 
 ## Using the script
 Download the code, and in the base directory, create the virtual environment:
@@ -52,3 +51,4 @@ $ py main.py
     * search by item wanted
     * search by item given
     * search by profession
+* different display options (simple, complex, full)
