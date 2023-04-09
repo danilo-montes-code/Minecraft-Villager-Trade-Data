@@ -8,6 +8,10 @@ This is a command line tool.
 * write data to JSON file
 * read data from JSON file
 * display the data on the command line
+* ask to write output to a file
+* start menu
+    * display all trades
+* different display options (simple, complex, full)
 
 ## Using the script
 Download the code, and in the base directory, create the virtual environment:
@@ -43,14 +47,8 @@ $ py main.py
 
 ## Planned Features
 * start menu
-    * display all trades
     * search by item wanted
     * search by item given
     * search by profession
     * check for updates
         * update data
-* command line arguments for getting only given professions
-* different display options (simple, complex, full)
-* ask to write output to a file (https://stackoverflow.com/questions/47699023/how-to-write-console-output-on-text-file)
-* searching for trades via items wanted/given
-* check for updated data
