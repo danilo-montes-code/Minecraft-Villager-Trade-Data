@@ -56,6 +56,7 @@ def main() -> None:
             search()
         elif choice == 3:
             check_for_updates()
+            clear()
         elif choice == 4:
             display_mode = change_display_mode(display_mode)
         else:
@@ -115,8 +116,51 @@ def search():
     pass
 
 
-def check_for_updates():
-    pass
+def check_for_updates() -> None:
+    """Checks for discrepancies between local and wiki data"""
+    
+    clear()
+    # verify that file exists to compare in the first place
+    if not os.path.isfile(FILE_PATH_VILLAGER_DATA):
+        print(
+            'There is no file to compare to, please first select ' +
+            'option 1 on the main menu' 
+        )
+        return
+    
+    file = get_data()
+
+    if file is None:
+        print('Exiting...')
+        exit(1)
+
+    # get data from wiki to compare
+    dom = connect()
+    job_sites, trade_tables = get_list(dom)
+    data = make_into_dicts(job_sites, trade_tables)
+
+    if file == data:
+        print('Local data is up to date')
+    else:
+        print('Local data is out of sync with wiki.')
+
+        choice = display_options(
+            'Would you like to update the data?',
+            [
+                'Yes',
+                'No'
+            ],
+            backable=False
+        )
+
+        if choice == 1:
+            with open(FILE_PATH_VILLAGER_DATA, 'w') as f:
+                write_to_file_json(f, data)
+            print('data updated')
+
+    etc()
+
+    return
 
 
 def change_display_mode(display_mode: str) -> str:
