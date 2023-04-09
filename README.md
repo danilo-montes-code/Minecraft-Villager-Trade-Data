@@ -11,6 +11,8 @@ This is a command line tool.
 * ask to write output to a file
 * start menu
     * display all trades
+    * check for updates
+        * update data
 * different display options (simple, complex, full)
 
 ## Using the script
@@ -50,5 +52,3 @@ $ py main.py
     * search by item wanted
     * search by item given
     * search by profession
-    * check for updates
-        * update data
