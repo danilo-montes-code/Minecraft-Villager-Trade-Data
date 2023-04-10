@@ -31,7 +31,7 @@ CONFIG = {
 def main() -> None:
     """Driver function, runs the main script loop"""
 
-    active = True           # controls the script runtime loop
+    active = True  # controls the script runtime loop
 
     clear()
     print(  
@@ -126,10 +126,10 @@ def search() -> None:
 
     if choice == 3:
         query = input('Enter your desired professions, separated by spaces: ')
-        queries = tuple(query.split(' '))
+        queries = tuple([prof.lower() for prof in query.split(' ')])
     else:
         query = input('Enter the items, separated by commas: ')
-        queries = tuple([item.strip() for item in query.split(',')])
+        queries = tuple([item.strip().lower() for item in query.split(',')])
 
     execute_search(choice, queries)
 
@@ -315,27 +315,12 @@ def execute_search(choice: int, queries: tuple[str]) -> None:
 
     results = []
 
-    # print(queries)
-    # for q in queries:
-    #     print(f'|{q}|')
-
     if choice == 3:
         for profession in data:
-
-            # print(f'|{profession["profession"]}|')
-
             if profession['profession'] in queries:
-
-                # print(profession['profession'], 'found')
-
                 results.append(profession)
 
     else:
-        if choice == 1:
-            entry = 'wanted'
-        else:
-            entry = 'given'
-
         for profession in data:
             temp_prof = {
                 'profession'     : profession['profession'],
@@ -350,13 +335,24 @@ def execute_search(choice: int, queries: tuple[str]) -> None:
                 }
 
                 for exchange in trade['exchanges']:
+                    if choice == 1:
+                        for item in exchange['wanted']['item']:
+                            found = False
+                            # gets cases of only part of item being in query
+                            # i.e. 'quartz' in 'quartz pillar'
+                            for query in queries: 
+                                if query in item.lower():
+                                    temp_trade_level['exchanges'].append(exchange)
+                                    found = True
+                                    break
 
-                    for item in exchange[entry]['item']:
-                        
-                        if item in queries:
-                            # print(item, 'found')
-                            temp_trade_level['exchanges'].append(exchange)
-                            break
+                            if found:
+                                break
+                    else:
+                        for query in queries: 
+                            if query in exchange['given']['item'].lower():
+                                temp_trade_level['exchanges'].append(exchange)
+                                break
                     
                 if temp_trade_level['exchanges'] != []:
                     temp_prof['trades'].append(temp_trade_level)
@@ -367,11 +363,11 @@ def execute_search(choice: int, queries: tuple[str]) -> None:
     
     if results == []:
         print('no results found')
+        etc()
     else:        
         display_data(results)
         prompt_to_save()
 
-    etc()
 
     return
 
