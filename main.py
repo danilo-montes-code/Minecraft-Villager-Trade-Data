@@ -19,7 +19,9 @@ FILE_PATH_VILLAGER_DATA = os.path.join(sys.path[0], 'villager-data.json')
 FILE_PATH_CONFIG = os.path.join(sys.path[0], 'MVTD-config.json')
 FILE_PATH_OUTPUT = os.path.join(sys.path[0], 'data-output.txt')
 DEVELOPING = True
-
+CONFIG = {
+    'display-mode' : 'simple' # controls the display mode of data
+}
 
 
 #################################################
@@ -30,7 +32,6 @@ def main() -> None:
     """Driver function, runs the main script loop"""
 
     active = True           # controls the script runtime loop
-    display_mode = 'simple' # controls the display mode of data
 
     clear()
     print(  
@@ -49,16 +50,14 @@ def main() -> None:
             continue
         
         if choice == 1:
-            display_all_trades(display_mode)
-            prompt_to_save(display_mode)
-            clear()
+            display_all_trades()
+            prompt_to_save()
         elif choice == 2:
             search()
         elif choice == 3:
             check_for_updates()
-            clear()
         elif choice == 4:
-            display_mode = change_display_mode(display_mode)
+            CONFIG['display-mode'] = change_display_mode()
         else:
             active = False
             continue
@@ -92,14 +91,8 @@ def display_menu() -> int:
     )
         
 
-def display_all_trades(display_mode: str) -> None:
-    """Displays all villager trades to the user
-
-    Parameters
-    ----------
-    display_mode : str
-        display mode of the data display
-    """
+def display_all_trades() -> None:
+    """Displays all villager trades to the user"""
     
     file = get_data()
 
@@ -107,7 +100,7 @@ def display_all_trades(display_mode: str) -> None:
         print('Exiting...')
         exit(1)
 
-    display_data(file, display_mode)
+    display_data(file)
 
     return
 
@@ -140,6 +133,7 @@ def search() -> None:
 
     execute_search(choice, queries)
 
+    clear()
     return
 
 
@@ -186,23 +180,21 @@ def check_for_updates() -> None:
             print('data updated')
 
     etc()
+    clear()
 
     return
 
 
-def change_display_mode(display_mode: str) -> str:
+def change_display_mode() -> str:
     """Prompts the user to change the display mode
-
-    Parameters
-    ----------
-    display_mode : str
-        display mode of the data
 
     Returns
     -------
     str
         updated display mode of the data
     """
+
+    display_mode = CONFIG['display-mode']
 
     clear()
     print(f'Current display mode: {display_mode}\n')
@@ -271,16 +263,16 @@ def get_data() -> list[dict]:
     return open_file_json(FILE_PATH_VILLAGER_DATA)
 
 
-def prompt_to_save(display_mode: str, path: str=FILE_PATH_OUTPUT) -> None:
+def prompt_to_save(path: str=FILE_PATH_OUTPUT) -> None:
     """Prompt the user to save the console output to a file
 
     Parameters
     ----------
     path : str
         the path of the file to save into
-    display_mode : str
-        display mode of the data display
     """
+
+    display_mode = CONFIG['display-mode']
 
     option = display_options(
         'Would you like to save the output to a file?',
@@ -300,10 +292,11 @@ def prompt_to_save(display_mode: str, path: str=FILE_PATH_OUTPUT) -> None:
                 sys.stdout = out
             etc()
 
+    clear()
     return
 
 
-def execute_search(choice: int, *queries: str) -> None:
+def execute_search(choice: int, queries: tuple[str]) -> None:
     """Gets the data and performs the search based on given queries
     
     Parameters
@@ -322,34 +315,55 @@ def execute_search(choice: int, *queries: str) -> None:
 
     results = []
 
+    # print(queries)
+    # for q in queries:
+    #     print(f'|{q}|')
+
     if choice == 3:
         for profession in data:
+
+            # print(f'|{profession["profession"]}|')
+
             if profession['profession'] in queries:
+
+                # print(profession['profession'], 'found')
+
                 results.append(profession)
 
-    elif choice == 1:
-        for profession in data:
-            data_holder = {}
-            for trade in profession['trades']:
-                for exchange in trade['exchanges']:
-                    for item in exchange['wanted']['item']:
-                        if item in queries:
-                            pass
-                            
-
-            if (data_holder != {}):
-                results.append(data_holder)
-
     else:
+        if choice == 1:
+            entry = 'wanted'
+        else:
+            entry = 'given'
+
         for profession in data:
-            data_holder = {}
+            temp_prof = {
+                'profession'     : profession['profession'],
+                'job-site-block' : profession['job-site-block'],
+                'trades'         : []
+            }
+
             for trade in profession['trades']:
+                temp_trade_level = {
+                    'level'     : trade['level'],
+                    'exchanges' : []
+                }
+
                 for exchange in trade['exchanges']:
-                    if exchange['given']['item'] in queries:
-                        pass
+
+                    for item in exchange[entry]['item']:
+                        
+                        if item in queries:
+                            # print(item, 'found')
+                            temp_trade_level['exchanges'].append(exchange)
+                            break
                     
-            if (data_holder != {}):
-                results.append(data_holder)
+                if temp_trade_level['exchanges'] != []:
+                    temp_prof['trades'].append(temp_trade_level)
+
+            if temp_prof['trades'] != []:
+                results.append(temp_prof)
+                    
     
     if results == []:
         print('no results found')
@@ -764,18 +778,18 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
 #                    Display                    #
 #################################################
 
-def display_data(villagers: list[dict], display_mode: str) -> None:
+def display_data(villagers: list[dict]) -> None:
     """Displays the given villager data
 
     Parameters
     ----------
     villagers : list[dict]
         list of infomation regarding villager trades to be printed
-    display_mode : str
-        display mode of the data
     """
 
     # ─ │ ┌ ┐ └ ┘
+
+    display_mode = CONFIG['display-mode']
 
     for profession in villagers:
         print_centered( '+--------------------------------------+')
