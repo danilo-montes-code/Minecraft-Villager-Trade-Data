@@ -112,8 +112,35 @@ def display_all_trades(display_mode: str) -> None:
     return
 
 
-def search():
-    pass
+def search() -> None:
+    """Enables the user to search for a trade based on criteria"""
+
+    clear()
+    
+    choice = display_options(
+        'What do you want to search by?',
+        [
+            'Item Wanted',
+            'Item Given',
+            'Profession',
+        ],
+        backable=True
+    )
+
+    if choice == 0:
+        clear()
+        return
+
+    if choice == 3:
+        query = input('Enter your desired professions, separated by spaces: ')
+        queries = tuple(query.split(' '))
+    else:
+        query = input('Enter the items, separated by commas: ')
+        queries = tuple([item.strip() for item in query.split(',')])
+
+    execute_search(choice, queries)
+
+    return
 
 
 def check_for_updates() -> None:
@@ -272,6 +299,65 @@ def prompt_to_save(display_mode: str, path: str=FILE_PATH_OUTPUT) -> None:
                 display_all_trades(display_mode)
                 sys.stdout = out
             etc()
+
+    return
+
+
+def execute_search(choice: int, *queries: str) -> None:
+    """Gets the data and performs the search based on given queries
+    
+    Parameters
+    ----------
+    choice : int
+        the int corresponding to the user's search query
+    queries : tuple(str)
+        the individual search queries
+    """
+
+    data = get_data()
+
+    if data is None:
+        print('Exiting...')
+        exit(1)
+
+    results = []
+
+    if choice == 3:
+        for profession in data:
+            if profession['profession'] in queries:
+                results.append(profession)
+
+    elif choice == 1:
+        for profession in data:
+            data_holder = {}
+            for trade in profession['trades']:
+                for exchange in trade['exchanges']:
+                    for item in exchange['wanted']['item']:
+                        if item in queries:
+                            pass
+                            
+
+            if (data_holder != {}):
+                results.append(data_holder)
+
+    else:
+        for profession in data:
+            data_holder = {}
+            for trade in profession['trades']:
+                for exchange in trade['exchanges']:
+                    if exchange['given']['item'] in queries:
+                        pass
+                    
+            if (data_holder != {}):
+                results.append(data_holder)
+    
+    if results == []:
+        print('no results found')
+    else:        
+        display_data(results)
+        prompt_to_save()
+
+    etc()
 
     return
 
