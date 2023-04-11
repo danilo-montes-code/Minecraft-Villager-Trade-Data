@@ -11,8 +11,12 @@ This is a command line tool.
 * ask to write output to a file
 * start menu
     * display all trades
+    * search by item wanted
+    * search by item given
+    * search by profession
     * check for updates
         * update data
+    
 
 ## Using the script
 Download the code, and in the base directory, create the virtual environment:
@@ -47,8 +51,4 @@ $ py main.py
 ``` -->
 
 ## Planned Features
-* start menu
-    * search by item wanted
-    * search by item given
-    * search by profession
 * different display options (simple, complex, full)
