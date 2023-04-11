@@ -16,11 +16,11 @@ from typing import TextIO
 from bs4 import BeautifulSoup, Tag
 
 FILE_PATH_VILLAGER_DATA = os.path.join(sys.path[0], 'villager-data.json')
-FILE_PATH_CONFIG = os.path.join(sys.path[0], 'MVTD-config.json')
 FILE_PATH_OUTPUT = os.path.join(sys.path[0], 'data-output.txt')
 DEVELOPING = True
 CONFIG = {
-    'display-mode' : 'simple' # controls the display mode of data
+    'display-mode'     : 'simple',  # controls the display mode of data
+    'display-job-site' : False
 }
 
 
@@ -141,6 +141,7 @@ def check_for_updates() -> None:
     """Checks for discrepancies between local and wiki data"""
     
     clear()
+
     # verify that file exists to compare in the first place
     if not os.path.isfile(FILE_PATH_VILLAGER_DATA):
         print(
@@ -211,13 +212,15 @@ def change_display_mode() -> str:
         '   * price multiplier\n' +
         'Full:\n' +
         '   * xp given to villager\n' +
-        '   * trades until disabled\n'
+        '   * trades until disabled\n' +
+        '*You can also toggle displaying the respective job site block*\n'
     )
 
     options = [
         'Simple',
         'Complex',
-        'Full'
+        'Full',
+        'Toggle Job Site Block'
     ]
 
     choice = display_options(
@@ -229,8 +232,19 @@ def change_display_mode() -> str:
     if choice == 0:
         clear()
         return display_mode
+
+    if choice == 4:
+        site = CONFIG['display-job-site']
+        CONFIG['display-job-site'], site = not site, not site
+
+        if site:
+            print('Job site is now: On')
+        else:
+            print('Job site is now: Off')
     
-    print(f'display mode now: {options[choice-1]}')
+    else:
+        print(f'Display mode now: {options[choice-1]}')
+        
     etc()
     clear()
     return options[choice-1]
