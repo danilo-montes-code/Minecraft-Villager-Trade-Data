@@ -51,7 +51,6 @@ def main() -> None:
         
         if choice == 1:
             display_all_trades()
-            prompt_to_save()
         elif choice == 2:
             search()
         elif choice == 3:
@@ -101,6 +100,7 @@ def display_all_trades() -> None:
         exit(1)
 
     display_data(file)
+    prompt_to_save(file)
 
     return
 
@@ -263,16 +263,16 @@ def get_data() -> list[dict]:
     return open_file_json(FILE_PATH_VILLAGER_DATA)
 
 
-def prompt_to_save(path: str=FILE_PATH_OUTPUT) -> None:
+def prompt_to_save(data: list[dict], path: str=FILE_PATH_OUTPUT) -> None:
     """Prompt the user to save the console output to a file
 
     Parameters
     ----------
+    data : list[dict]
+        the data to be saved
     path : str
         the path of the file to save into
     """
-
-    display_mode = CONFIG['display-mode']
 
     option = display_options(
         'Would you like to save the output to a file?',
@@ -288,7 +288,7 @@ def prompt_to_save(path: str=FILE_PATH_OUTPUT) -> None:
             with open(path, 'w') as f:
                 out = sys.stdout
                 sys.stdout = f
-                display_all_trades(display_mode)
+                display_data(data)
                 sys.stdout = out
             etc()
 
@@ -366,7 +366,7 @@ def execute_search(choice: int, queries: tuple[str]) -> None:
         etc()
     else:        
         display_data(results)
-        prompt_to_save()
+        prompt_to_save(results)
 
 
     return
