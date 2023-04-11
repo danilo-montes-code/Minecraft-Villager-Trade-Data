@@ -56,7 +56,7 @@ def main() -> None:
         elif choice == 3:
             check_for_updates()
         elif choice == 4:
-            CONFIG['display-mode'] = change_display_mode()
+            change_display_mode()
         else:
             active = False
             continue
@@ -186,14 +186,8 @@ def check_for_updates() -> None:
     return
 
 
-def change_display_mode() -> str:
-    """Prompts the user to change the display mode
-
-    Returns
-    -------
-    str
-        updated display mode of the data
-    """
+def change_display_mode() -> None:
+    """Prompts the user to change the display mode"""
 
     display_mode = CONFIG['display-mode']
 
@@ -231,7 +225,7 @@ def change_display_mode() -> str:
 
     if choice == 0:
         clear()
-        return display_mode
+        return
 
     if choice == 4:
         site = CONFIG['display-job-site']
@@ -243,11 +237,12 @@ def change_display_mode() -> str:
             print('Job site is now: Off')
     
     else:
-        print(f'Display mode now: {options[choice-1]}')
-        
+        CONFIG['display-mode'] = options[choice-1]
+        print(f'Display mode now: {CONFIG["display-mode"]}')
+
     etc()
     clear()
-    return options[choice-1]
+    return
     
 
 
