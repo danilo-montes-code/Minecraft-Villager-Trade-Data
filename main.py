@@ -553,7 +553,7 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
 
     Returns
     -------
-    tuple
+    tuple[list[str], list[Tag]
         a tuple that contains both job sites and trade tables
     """
 
@@ -792,13 +792,14 @@ def display_data(villagers: list[dict]) -> None:
         list of infomation regarding villager trades to be printed
     """
 
-    # ─ │ ┌ ┐ └ ┘
-
     display_mode = CONFIG['display-mode']
+    display_job_site = CONFIG['display-job-site']
 
     for profession in villagers:
         print_centered( '+--------------------------------------+')
         print_centered(f'|{profession["profession"].title().center(38)}|')
+        if display_job_site:
+            print_centered('|' + f'Job Site: {profession["job-site-block"].title()}'.center(38) + '|')
         print_centered( '+--------------------------------------+')
 
         trades = profession['trades']
