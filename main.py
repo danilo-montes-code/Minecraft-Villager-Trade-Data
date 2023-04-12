@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup, Tag
 FILE_PATH_VILLAGER_DATA = os.path.join(sys.path[0], 'villager-data.json')
 FILE_PATH_OUTPUT = os.path.join(sys.path[0], 'data-output.txt')
 DEVELOPING = True
+MAX_WIDTH = 80
 CONFIG = {
     'display-mode'     : 'simple',  # controls the display mode of data
     'display-job-site' : False
@@ -237,7 +238,7 @@ def change_display_mode() -> None:
             print('Job site is now: Off')
     
     else:
-        CONFIG['display-mode'] = options[choice-1]
+        CONFIG['display-mode'] = options[choice-1].lower()
         print(f'Display mode now: {CONFIG["display-mode"]}')
 
     etc()
@@ -810,24 +811,40 @@ def display_data(villagers: list[dict]) -> None:
             print_centered( '+-----------------------+')
 
             for exchange in trade['exchanges']:
-                # simple
                 wanted = exchange['wanted']
                 given = exchange['given']
-                wanted_string = ', '.join(wanted['item'])
-
-                print_centered(wanted_string + ' -> ' + given['item'])
+               
                 if display_mode == 'simple':
+                    wanted_string = ', '.join(wanted['item'])
+                    print_centered(wanted_string + ' -> ' + given['item'])
                     continue
 
                 # complex
-                # TODO complex mode
+                wanted_parts = []
+
+                for i in range(len(wanted['item'])):
+                    wanted_parts.append(
+                        wanted['default-quantity'][i] + ' ' + wanted['item'][i])
+
+                wanted_string = ', '.join(wanted_parts)
+                given_string = given['quantity'] + ' ' + given['item']
+
+                print_centered(wanted_string + 
+                                ' -<' + wanted['price-multiplier'] + '>-> ' +
+                                given_string)
+
                 if display_mode == 'complex':
                     continue
 
+                full_string = exchange['xp-to-villager'] + ' XP to villager' \
+                            + ', ' + exchange['trades-until-disabled'] + \
+                              ' until disabled'
+                            
                 # full
-                # TODO full mode
-
-        print('=' * 50)
+                print_centered(full_string)
+                print()
+                
+        print('=' * MAX_WIDTH)
 
     return
 
@@ -841,7 +858,7 @@ def print_centered(text: str) -> None:
         the text to be printed
     """
 
-    print(text.center(50))
+    print(text.center(MAX_WIDTH))
     return
 
 

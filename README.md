@@ -16,6 +16,7 @@ This is a command line tool.
     * search by profession
     * check for updates
         * update data
+* different display options (simple, complex, full)
     
 
 ## Using the script
@@ -51,4 +52,4 @@ $ py main.py
 ``` -->
 
 ## Planned Features
-* different display options (simple, complex, full)
+* grouping functions in classes, moving script to src/.../ format
