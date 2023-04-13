@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup, Tag
 
 FILE_PATH_VILLAGER_DATA = os.path.join(sys.path[0], 'villager-data.json')
 FILE_PATH_OUTPUT = os.path.join(sys.path[0], 'data-output.txt')
-DEVELOPING = True
+DEVELOPING = False
 MAX_WIDTH = 80
 CONFIG = {
     'display-mode'     : 'simple',  # controls the display mode of data
