@@ -11,7 +11,7 @@ Dependencies:
 * BeautifulSoup
 """
 
-import requests, json, os.path, sys, re
+import requests, json, os.path, sys, re, getopt
 from typing import TextIO
 from bs4 import BeautifulSoup, Tag
 
@@ -31,6 +31,9 @@ CONFIG = {
 
 def main() -> None:
     """Driver function, runs the main script loop"""
+
+    if handle_args():
+        exit(1)
 
     active = True  # controls the script runtime loop
 
@@ -155,7 +158,7 @@ def check_for_updates() -> None:
 
     if file is None:
         print('Exiting...')
-        exit(1)
+        sys.exit(1)
 
     # get data from wiki to compare
     dom = connect()
@@ -250,6 +253,50 @@ def change_display_mode() -> None:
 #################################################
 #               Homepage Functions              #
 #################################################
+
+def handle_args() -> bool:
+    """Handles the command line arguments, if any are present
+
+    Returns
+    -------
+    bool
+        True, if there were command line arguments \n
+        False, otherwise
+    """
+
+    args_list = sys.argv
+    if len(args_list) == 1:
+        return False
+    
+    try:
+        options, args = getopt.getopt(args_list[1:], 'wgp')
+        if len(options) > 1:
+            raise getopt.GetoptError()
+    except getopt.GetoptError:
+        print(
+            'Use the following format for command line arguments:\n' +
+            'py main.py [ARG] [QUERIES,]\n' +
+            '* ARG - argument flag for the requested operation\n' +
+            '* QUERIES - list of queries given to the respective operation\n' +
+            '\nARG\n' +
+            '* -w : search for item wanted\n' +
+            '* -g : search for item given\n' +
+            '* -p : search for profession\n' +
+            '\nQUERIES\n' +
+            'if -p flag: space separated list of professions\n' +
+            'if -w or -g flag: command separated list of items'
+        )
+        exit(2)
+
+    flag = options[0][0]
+    if flag == '-p':
+        pass
+    else:
+        pass
+
+    # do search
+    return True
+
 
 def get_data() -> list[dict]:
     """Gets the file containing villager info

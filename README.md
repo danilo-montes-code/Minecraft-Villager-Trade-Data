@@ -53,3 +53,4 @@ $ py main.py
 
 ## Planned Features
 * grouping functions in classes, moving script to src/.../ format
+* command line args
