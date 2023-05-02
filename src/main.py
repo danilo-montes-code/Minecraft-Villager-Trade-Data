@@ -1,4 +1,4 @@
-"""Minecraft-Villager-Trade-Data
+"""Minecraft Villager Trade Data
 
 This script connects to the Minecraft wiki, parses the villager trade
 information, and saves it to a file for offline viewing.
@@ -9,13 +9,21 @@ Otherwise, it will connect to the website.
 Dependencies:
 * requests
 * BeautifulSoup
+* pyyaml
 """
 
+# python native
 import json, os.path, sys, re, getopt
 from pathlib import Path
 from typing import TextIO
+
+# install required
 import requests
 from bs4 import BeautifulSoup, Tag
+
+# in project
+from file_handler import FileHandler
+
 
 SCRIPT_ROOT = sys.path[0]
 FILE_PATH_VILLAGER_DATA = os.path.join(SCRIPT_ROOT, 'data', 'villager-data.json')
