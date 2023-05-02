@@ -1,6 +1,5 @@
 # ignore files created by script
-*.json
-*.txt
+data/
 
 # Environments
 .env

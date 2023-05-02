@@ -11,13 +11,16 @@ Dependencies:
 * BeautifulSoup
 """
 
-import requests, json, os.path, sys, re, getopt
+import json, os.path, sys, re, getopt
+from pathlib import Path
 from typing import TextIO
+import requests
 from bs4 import BeautifulSoup, Tag
 
-FILE_PATH_VILLAGER_DATA = os.path.join(sys.path[0], 'villager-data.json')
-FILE_PATH_OUTPUT = os.path.join(sys.path[0], 'data-output.txt')
-DEVELOPING = False
+SCRIPT_ROOT = sys.path[0]
+FILE_PATH_VILLAGER_DATA = os.path.join(SCRIPT_ROOT, 'data', 'villager-data.json')
+FILE_PATH_OUTPUT = os.path.join(SCRIPT_ROOT, 'data', 'data-output.txt')
+DEVELOPING = True
 MAX_WIDTH = 80
 CONFIG = {
     'display-mode'     : 'simple',  # controls the display mode of data
@@ -32,8 +35,9 @@ CONFIG = {
 def main() -> None:
     """Driver function, runs the main script loop"""
 
+    # if command line args were given, exit program after done
     if handle_args():
-        exit(1)
+        exit(0)
 
     active = True  # controls the script runtime loop
 
@@ -269,12 +273,12 @@ def handle_args() -> bool:
         return False
     
     try:
-        options, args = getopt.getopt(args_list[1:], 'wgp')
-        if len(options) > 1:
-            raise getopt.GetoptError()
+        options, queries = getopt.getopt(args_list[1:], 'wgp')
+        if len(options) == 0 or len(queries) == 0:
+            raise getopt.GetoptError('incorrect format')
     except getopt.GetoptError:
         print(
-            'Use the following format for command line arguments:\n' +
+            'Use the following format for command line arguments:\n\n' +
             'py main.py [ARG] [QUERIES,]\n' +
             '* ARG - argument flag for the requested operation\n' +
             '* QUERIES - list of queries given to the respective operation\n' +
@@ -283,18 +287,22 @@ def handle_args() -> bool:
             '* -g : search for item given\n' +
             '* -p : search for profession\n' +
             '\nQUERIES\n' +
-            'if -p flag: space separated list of professions\n' +
-            'if -w or -g flag: command separated list of items'
+            'space separated list of items/jobs to search for, ' +
+            'terms with spaces surrounded with double quotes\n' +
+            '\nExample Usage\n' +
+            'py main.py -p mason\n' +
+            'py main.py -g "enchanted diamond"\n'
         )
         exit(2)
 
     flag = options[0][0]
-    if flag == '-p':
-        pass
-    else:
-        pass
+    flags = ['', '-w', '-g', '-p']
 
-    # do search
+    print(flag)
+    print(queries)
+
+    execute_search(flags.index(flag), queries)
+
     return True
 
 
@@ -308,7 +316,7 @@ def get_data() -> list[dict]:
     """
 
     if not os.path.isfile(FILE_PATH_VILLAGER_DATA):
-        if not create_file(FILE_PATH_VILLAGER_DATA):
+        if not create_dir() or not create_file(FILE_PATH_VILLAGER_DATA):
             return None
 
         with open(FILE_PATH_VILLAGER_DATA, 'w') as f:
@@ -434,6 +442,38 @@ def execute_search(choice: int, queries: tuple[str]) -> None:
 #                 File Handling                 #
 #################################################
 
+def create_dir(path: str = 'data') -> bool: 
+    """Create directory from the root of the script
+
+    Parameters
+    ----------
+    path : str
+        path of the directory to be created
+
+    Returns
+    -------
+    bool
+        True,  if directory was created successfully \n
+        False, otherwise
+    """
+
+    ret = False
+    try:
+        Path(path).mkdir()
+        ret = True
+
+    except FileExistsError as e:
+        handle_error(e, 'create_dir()', 
+                     'error creating data directory')
+
+    except Exception as e:
+        handle_error(e, 'create_dir()', 
+                     'erroneous error creating data directory')
+
+    finally:
+        return ret
+
+
 def create_file(path: str) -> bool:
     """Create file for local storage of villager data
 
@@ -445,9 +485,10 @@ def create_file(path: str) -> bool:
     Returns
     -------
     bool
-        true,  if file was created successfully \n
-        false, otherwise
+        True,  if file was created successfully \n
+        False, otherwise
     """
+
     try:
         with open(path, 'w'):
             ret = True
@@ -912,7 +953,7 @@ def print_centered(text: str) -> None:
 def clear() -> None:
     """Clears the interpreter console"""
 
-    os.system('cls')
+    print('-'*int(MAX_WIDTH*5/4))
     return
 
 
