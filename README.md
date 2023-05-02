@@ -17,6 +17,7 @@ This is a command line tool.
     * check for updates
         * update data
 * different display options (simple, complex, full)
+* command line args for quick use
     
 
 ## Using the script
@@ -53,4 +54,3 @@ $ py main.py
 
 ## Planned Features
 * grouping functions in classes, moving script to src/.../ format
-* command line args
