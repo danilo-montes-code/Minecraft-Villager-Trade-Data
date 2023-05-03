@@ -22,7 +22,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 # in project
-from file_handler import FileHandler
+from classes.file_handler import FileHandler
 
 
 SCRIPT_ROOT = sys.path[0]
