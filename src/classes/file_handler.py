@@ -1,6 +1,6 @@
 """file_handler.py
 
-Contains class that handles a file.
+Contains class that handles a single file.
 """
 
 # python native
@@ -15,15 +15,11 @@ from useful_methods import *
 
 # constants
 SCRIPT_ROOT = sys.path[0]
-# FILE_PATH_VILLAGER_DATA = os.path.join(SCRIPT_ROOT, 'data', 'villager-data.json')
-# FILE_PATH_OUTPUT = os.path.join(SCRIPT_ROOT, 'data', 'data-output.txt')
-# DEVELOPING = True
-MAX_WIDTH = 80
 
 
 class FileHandler:
     """
-    A class that handles file input and output.
+    A class that handles a single file's input and output.
 
     Attributes
     ----------
@@ -31,13 +27,14 @@ class FileHandler:
         filename of the desired file
     extension : FileExtension
         handles file IO based on extension type
-    dir : str, default='data'
-        directory to put files in
     
     Methods
     -------
+    @staticmethod
     create_dir(path='data'):
         creates directory from the root directory at given path
+    create_file():
+        creates file at the location of the fn attribute
     """
 
     def __init__(self, fn: str, 
@@ -49,6 +46,8 @@ class FileHandler:
         ----------
         fn : str
             filename of the desired file
+        extension : FileExtension
+            handles file IO based on extension type
         dir : str, default='data'
             directory to put files in
         """
@@ -57,8 +56,10 @@ class FileHandler:
         self.extention = extension
 
 
-    def create_dir(self, path: str = 'data') -> bool: 
-        """Create directory from the root of the script
+    @staticmethod
+    def create_dir(path: str = 'data') -> bool: 
+        """
+        Create directory from the root of the script.
 
         Parameters
         ----------
@@ -68,49 +69,43 @@ class FileHandler:
         Returns
         -------
         bool
-            True,  if directory was created successfully \n
+            True,  if directory was created successfully |
             False, otherwise
         """
 
-        ret = False
+        created = False
         try:
             Path(path).mkdir()
-            ret = True
+            created = True
 
         except FileExistsError as e:
-            handle_error(e, 'create_dir()', 
+            handle_error(e, 'FileHandler.create_dir()', 
                         'error creating data directory')
 
         except Exception as e:
-            handle_error(e, 'create_dir()', 
+            handle_error(e, 'FileHandler.create_dir()', 
                         'erroneous error creating data directory')
 
         finally:
-            return ret
+            return created
 
 
     def create_file(self) -> bool:
         """
         Creates file at path specified in attribute.
 
-        Parameters
-        ----------
-        path : str
-            path of the file to be created
-
         Returns
         -------
         bool
-            True,  if file was created successfully \n
+            True,  if file was created successfully |
             False, otherwise
         """
 
         val = False
-
         try:
             with open(self.path, 'w'):
                 val = True
-            print('file created successfully')
+                print('file created successfully')
 
         except IOError as e:
             handle_error(e, 'FileHandler.create_file()', 

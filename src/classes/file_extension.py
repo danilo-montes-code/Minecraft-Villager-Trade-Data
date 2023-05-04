@@ -16,20 +16,28 @@ class FileExtension(ABC):
     
     Attributes
     ----------
+    fn : str
+        filename of the file
 
     Methods
     -------
     open():
         opens the file and returns its data
-
-
+    write(data):
+        writes data to file
     """
 
-    def __init__(self) -> None:
+    def __init__(self, fn: str) -> None:
         """
         Creates FileExtension instance.
+
+        Parameters
+        ----------
+        fn : str
+            filename of the desired file
         """
-        pass
+        
+        self.fn = fn
     
     
     @abstractmethod
@@ -41,7 +49,7 @@ class FileExtension(ABC):
 
     
     @abstractmethod
-    def write(self) -> bool:
+    def write(self, data: Any) -> bool:
         """
         Writes to the file.
         """
