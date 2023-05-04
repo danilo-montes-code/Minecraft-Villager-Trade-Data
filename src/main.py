@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup, Tag
 
 # in project
 from classes.file_handler import FileHandler
+from classes.file_json import JSONFile
 
 
 SCRIPT_ROOT = sys.path[0]
@@ -34,6 +35,9 @@ CONFIG = {
     'display-mode'     : 'simple',  # controls the display mode of data
     'display-job-site' : False
 }
+VILLAGER_DATA = FileHandler('villager-data.json', JSONFile())
+# SAVED_DATA = FileHandler('data-output.txt', TxtFile())
+# CONFIG = FileHandler('config.yaml', YAMLFile(), '')
 
 
 #################################################

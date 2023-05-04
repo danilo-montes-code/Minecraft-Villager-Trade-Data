@@ -3,15 +3,26 @@
 Contains a class that handles JSON file IO.
 """
 
-from file_extension import FileExtension
-from typing import Any
+# python native
 import json
+from typing import Any
+
+# in project
+from file_extension import FileExtension
+from useful_methods import *
 
 
 class JSONFile(FileExtension):
     """
     Class that handles JSON file IO.
     """
+
+    def __init__(self) -> None:
+        """
+        Creates JSONFile instance.
+        """
+        super().__init__()
+
 
     def open(self, file : str) -> Any:
         """Opens JSON file and returns its data
@@ -27,11 +38,11 @@ class JSONFile(FileExtension):
                 data = json.load(f)
 
         except IOError as e:
-            self.handle_error(e, 'open()', 'error opening file')
+            handle_error(e, 'open()', 'error opening file')
             data = None
 
         except Exception as e:
-            self.handle_error(e, 'open()', 'erroneous error opening file')
+            handle_error(e, 'open()', 'erroneous error opening file')
             data = None
 
         finally:
