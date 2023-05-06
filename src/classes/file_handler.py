@@ -69,7 +69,8 @@ class FileHandler:
         Returns
         -------
         bool
-            True,  if directory was created successfully |
+            True,  if directory was created successfully or if
+                   directory already exists |
             False, otherwise
         """
 
@@ -79,8 +80,7 @@ class FileHandler:
             created = True
 
         except FileExistsError as e:
-            handle_error(e, 'FileHandler.create_dir()', 
-                        'error creating data directory')
+            created = True
 
         except Exception as e:
             handle_error(e, 'FileHandler.create_dir()', 
@@ -103,9 +103,10 @@ class FileHandler:
 
         val = False
         try:
-            with open(self.path, 'w'):
-                val = True
-                print('file created successfully')
+            if FileHandler.create_dir():
+                with open(self.path, 'w'):
+                    val = True
+                    print('file created successfully')
 
         except IOError as e:
             handle_error(e, 'FileHandler.create_file()', 
