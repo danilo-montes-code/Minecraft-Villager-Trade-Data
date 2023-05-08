@@ -110,7 +110,8 @@ def main() -> None:
 #################################################
 
 def display_menu() -> int:
-    """Displays the menu options to the user and gets their response
+    """
+    Displays the menu options to the user and gets their response.
     
     Returns
     -------
@@ -131,7 +132,9 @@ def display_menu() -> int:
         
 
 def display_all_trades() -> None:
-    """Displays all villager trades to the user"""
+    """
+    Displays all villager trades to the user.
+    """
     
     file = get_data()
 
@@ -229,7 +232,7 @@ def check_for_updates() -> None:
 def change_display_mode() -> None:
     """Prompts the user to change the display mode"""
 
-    display_mode = CONFIG['display-mode']
+    display_mode = CONFIG_DICT['display-mode']
 
     clear()
     print(f'Current display mode: {display_mode}\n')
@@ -268,8 +271,8 @@ def change_display_mode() -> None:
         return
 
     if choice == 4:
-        site = CONFIG['display-job-site']
-        CONFIG['display-job-site'], site = not site, not site
+        site = CONFIG_DICT['display-job-site']
+        CONFIG_DICT['display-job-site'], site = not site, not site
 
         if site:
             print('Job site is now: On')
@@ -277,8 +280,8 @@ def change_display_mode() -> None:
             print('Job site is now: Off')
     
     else:
-        CONFIG['display-mode'] = options[choice-1].lower()
-        print(f'Display mode now: {CONFIG["display-mode"]}')
+        CONFIG_DICT['display-mode'] = options[choice-1].lower()
+        print(f'Display mode now: {CONFIG_DICT["display-mode"]}')
 
     etc()
     clear()
@@ -913,8 +916,8 @@ def display_data(villagers: list[dict]) -> None:
         list of infomation regarding villager trades to be printed
     """
 
-    display_mode = CONFIG['display-mode']
-    display_job_site = CONFIG['display-job-site']
+    display_mode = CONFIG_DICT['display-mode']
+    display_job_site = CONFIG_DICT['display-job-site']
 
     for profession in villagers:
         print_centered( '+--------------------------------------+')
@@ -983,7 +986,9 @@ def print_centered(text: str) -> None:
 
 
 def clear() -> None:
-    """Clears the interpreter console"""
+    """
+    "Clears" the interpreter console by printing a dividing line.
+    """
 
     print('-'*int(MAX_WIDTH*5/4))
     return
@@ -998,7 +1003,8 @@ def display_options(
         prompt: str, 
         options: list[str], 
         backable: bool=False) -> int:
-    """Displays the list of options to the user.
+    """
+    Displays the list of options to the user.
     Repeats until a valid option is given.
 
     Parameters
@@ -1007,14 +1013,14 @@ def display_options(
         question prompt for the user
     options : list[str]
         ordered list of options for the user
-    backable : bool
-        True,  if the user can go back from the options screen 
-        / False, otherwise 
+    backable : bool, default=False
+        True,  if the user can go back from the options screen |
+        False, otherwise 
 
     Returns
     -------
     int
-        the option selected by the user \n
+        the option selected by the user |
         -1 if error raised or invalid response
     """
     
@@ -1038,10 +1044,10 @@ def display_options(
         
         except Exception as e:
             if backable:
-                handle_error(e, 'display_options()', 
+                handle_error(e, 'main.display_options()', 
                              f'Please enter an option from 0 to {last_option}')
             else:
-                handle_error(e, 'display_options()', 
+                handle_error(e, 'main.display_options()', 
                              f'Please enter an option from 1 to {last_option}')
         
     return option
