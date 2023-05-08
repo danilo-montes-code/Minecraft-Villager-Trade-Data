@@ -6,6 +6,7 @@ Contains class that handles a single file.
 # python native
 import sys, os
 from pathlib import Path
+from typing import Type
 
 # in project
 from file_extension import FileExtension
@@ -37,7 +38,7 @@ class FileHandler:
     """
 
     def __init__(self, fn: str, 
-                 extension: FileExtension, dir: str='data') -> None:
+                 extension: Type[FileExtension], dir: str='data') -> None:
         """
         Creates FileHandler instance.
 
@@ -52,7 +53,7 @@ class FileHandler:
         """
 
         self.path = os.path.join(SCRIPT_ROOT, dir, fn)
-        self.extention = extension
+        self.extention = extension(self.path)
 
 
     @staticmethod
