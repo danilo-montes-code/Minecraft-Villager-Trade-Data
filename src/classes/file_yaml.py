@@ -70,7 +70,7 @@ class YAMLFile(FileExtension):
             return data
         
 
-    def write(self, data : Any) -> bool:
+    def write(self, data: dict) -> bool:
         """
         Writes data to YAML file.
 
