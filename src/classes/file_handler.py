@@ -6,7 +6,6 @@ Contains class that handles a single file.
 # python native
 import sys, os
 from pathlib import Path
-from typing import TextIO
 
 # in project
 from file_extension import FileExtension
@@ -69,7 +68,7 @@ class FileHandler:
         Returns
         -------
         bool
-            True,  if directory was created successfully or if
+            True,  if directory was created successfully or if \
                    directory already exists |
             False, otherwise
         """
