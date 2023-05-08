@@ -5,8 +5,10 @@ Contains various functions for use across different files.
 
 DEVELOPING = True
 
-def handle_error(error: Exception, function: str, default_error: str) -> None:
-    """Displays error message and what function the error occurred in.
+def handle_error(error: Exception, 
+                 function: str, default_error: str) -> None:
+    """
+    Displays error message and what function the error occurred in.
     Either displays the full error message or just the error text,
     depending on whether the script is being developed or not.
 
@@ -33,7 +35,9 @@ def handle_error(error: Exception, function: str, default_error: str) -> None:
 
 
 def etc() -> None:
-    """Displays prompt to user to press Enter to continue"""
+    """
+    Displays prompt to user to press Enter to continue
+    """
 
     input('Press Enter to continue\n')
     return
