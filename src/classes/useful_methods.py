@@ -36,7 +36,7 @@ def handle_error(error: Exception,
 
 def etc() -> None:
     """
-    Displays prompt to user to press Enter to continue
+    Displays prompt to user to press Enter to continue.
     """
 
     input('Press Enter to continue\n')
