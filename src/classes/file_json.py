@@ -42,7 +42,7 @@ class JSONFile(FileExtension):
         super().__init__(fn)
 
 
-    def open(self) -> Any:
+    def open(self) -> Any | None:
         """
         Opens JSON file and returns its data.
 
