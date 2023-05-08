@@ -23,7 +23,7 @@ class YAMLFile(FileExtension):
     
     Methods
     -------
-    open():
+    read():
         opens the file and returns its data
     write(data):
         writes data to file
@@ -42,7 +42,7 @@ class YAMLFile(FileExtension):
         super().__init__(fn)
 
 
-    def open(self) -> dict | None:
+    def read(self) -> dict | None:
         """
         Opens YAML file and returns its data.
 
@@ -70,13 +70,13 @@ class YAMLFile(FileExtension):
             return data
         
 
-    def write(self, data: dict) -> bool:
+    def write(self, data: dict[str, Any]) -> bool:
         """
         Writes data to YAML file.
 
         Parameters
         ----------
-        data : Any
+        data : dict[str, Any]
             the data to write to the file
 
         Returns

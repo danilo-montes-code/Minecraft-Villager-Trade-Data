@@ -15,7 +15,7 @@ Dependencies:
 # python native
 import json, os.path, sys, re, getopt
 from pathlib import Path
-from typing import TextIO
+from typing import TextIO, Any
 
 # install required
 import requests
@@ -25,17 +25,38 @@ from bs4 import BeautifulSoup, Tag
 from classes import *
 
 
-# constants
+# constants type hints
+MAX_WIDTH: int
+VILLAGER_DATA: FileHandler 
+SAVED_DATA: FileHandler
+CONFIG_DATA: FileHandler
+CONFIG_DICT: dict[str, Any]
+
+# constants definitions
 MAX_WIDTH = 80
 VILLAGER_DATA = FileHandler('villager-data.json', JSONFile)
 SAVED_DATA = FileHandler('data-output.txt', TxtFile)
-CONFIG = FileHandler('config.yaml', YAMLFile)
-CONFIG_DICT = {
-    'display-mode'     : 'simple',  # controls the display mode of data
-    'display-job-site' : False
-}
 
+# set up default config file
+CONFIG_DATA = FileHandler('config.yaml', YAMLFile)
+if not CONFIG_DATA.file_exists():
+    CONFIG_DICT = {
+        'display-mode'     : 'simple',
+        'display-job-site' : False
+    }
+else:
+    # set up default config if file is empty
+    if os.stat(CONFIG_DATA.path).st_size == 0:
+        CONFIG_DICT = {
+            'display-mode'     : 'simple',
+            'display-job-site' : False
+        }
+        CONFIG_DATA.write(CONFIG_DICT)
 
+    else:
+        CONFIG_DICT = CONFIG_DATA.read()
+
+    
 
 #################################################
 #                     Main                      #
@@ -973,33 +994,6 @@ def clear() -> None:
 #                Runtime Handling               #
 #################################################
 
-def handle_error(error: Exception, function: str, default_error: str) -> None:
-    """Displays error message and what function the error occurred in.
-    Either displays the full error message or just the error text,
-    depending on whether the script is being developed or not.
-
-    Parameters
-    ----------
-    error : Exception
-        the exception that was raised
-    function : str
-        the name of the function that the expection was raised in
-    default_error : str
-        the error message to be displayed to the user, non-technical
-        such that the user can more obviously know what to do
-    """
-
-    if DEVELOPING:
-        print('Error in function: ' + function)
-        print(type(error))
-        print(error)
-    else:
-        print(default_error)
-
-    etc()
-    return
-
-
 def display_options(
         prompt: str, 
         options: list[str], 
@@ -1051,13 +1045,6 @@ def display_options(
                              f'Please enter an option from 1 to {last_option}')
         
     return option
-
-
-def etc() -> None:
-    """Displays prompt to user to press Enter to continue"""
-
-    input('Press Enter to continue\n')
-    return
 
 
 

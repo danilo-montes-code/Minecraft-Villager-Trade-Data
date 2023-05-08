@@ -23,7 +23,7 @@ class JSONFile(FileExtension):
     
     Methods
     -------
-    open():
+    read():
         opens the file and returns its data
     write(data):
         writes data to file
@@ -42,7 +42,7 @@ class JSONFile(FileExtension):
         super().__init__(fn)
 
 
-    def open(self) -> Any | None:
+    def read(self) -> Any | None:
         """
         Opens JSON file and returns its data.
 

@@ -3,7 +3,13 @@
 Contains various functions for use across different files.
 """
 
+# python native
+from typing import Any
+
+
+# constants
 DEVELOPING = True
+
 
 def handle_error(error: Exception, 
                  function: str, default_error: str) -> None:
@@ -24,11 +30,11 @@ def handle_error(error: Exception,
     """
 
     if DEVELOPING:
-        print('Error in function: ' + function)
-        print(type(error))
-        print(error)
+        print_internal('Error in function: ' + function)
+        print_internal(type(error))
+        print_internal(error)
     else:
-        print(default_error)
+        print_internal(default_error)
 
     etc()
     return
@@ -40,4 +46,19 @@ def etc() -> None:
     """
 
     input('Press Enter to continue\n')
+    return
+
+
+def print_internal(text: Any) -> None:
+    """
+    Prints a message with an indent indicating an internal message,
+    a message that appears during setup of the script.
+
+    Parameters
+    ----------
+    text : Any
+        the data to display
+    """
+
+    print(f'] {text}')
     return

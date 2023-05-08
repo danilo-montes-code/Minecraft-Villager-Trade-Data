@@ -41,7 +41,7 @@ class FileExtension(ABC):
     
     
     @abstractmethod
-    def open(self) -> Any:
+    def read(self) -> Any:
         """
         Opens the file and returns the data held within.
         """

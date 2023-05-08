@@ -22,7 +22,7 @@ class TxtFile(FileExtension):
     
     Methods
     -------
-    open():
+    read():
         opens the file and returns its data
     write(data):
         writes data to file
@@ -41,7 +41,7 @@ class TxtFile(FileExtension):
         super().__init__(fn)
 
 
-    def open(self) -> list[str] | None:
+    def read(self) -> list[str] | None:
         """
         Opens txt file and returns its data.
 

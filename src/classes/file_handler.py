@@ -6,7 +6,7 @@ Contains class that handles a single file.
 # python native
 import sys, os
 from pathlib import Path
-from typing import Type
+from typing import Type, Any
 
 # in project
 from file_extension import FileExtension
@@ -35,10 +35,17 @@ class FileHandler:
         creates directory from the root directory at given path
     create_file():
         creates file at the location of the fn attribute
+    file_exists():
+        determines if file already exists
+    read():
+        opens file and returns its data
+    write(data):
+        writes to file
     """
 
     def __init__(self, fn: str, 
-                 extension: Type[FileExtension], dir: str='data') -> None:
+                 extension: Type[FileExtension], 
+                 dir: str='data') -> None:
         """
         Creates FileHandler instance.
 
@@ -54,6 +61,11 @@ class FileHandler:
 
         self.path = os.path.join(SCRIPT_ROOT, dir, fn)
         self.extention = extension(self.path)
+        if not self.file_exists():
+            if self.create_file():
+                print_internal(f'{self.path} created successfully')
+            else:
+                print_internal(f'error creating file {self.path}')
 
 
     @staticmethod
@@ -106,7 +118,6 @@ class FileHandler:
             if FileHandler.create_dir():
                 with open(self.path, 'w'):
                     val = True
-                    print('file created successfully')
 
         except IOError as e:
             handle_error(e, 'FileHandler.create_file()', 
@@ -118,3 +129,49 @@ class FileHandler:
 
         finally:
             return val
+        
+
+    def file_exists(self) -> bool:
+        """
+        Determines if file exists.
+
+        Returns
+        -------
+        bool
+            True,  if file exists |
+            False, otherwise
+        """
+
+        return os.path.isfile(self.path)
+    
+
+    def read(self) -> Any:
+        """
+        Opens file and returns its data.
+
+        Returns
+        -------
+        Any
+            the data held in the file
+        """
+
+        return self.extention.read()
+    
+
+    def write(self, data: Any) -> bool:
+        """
+        Writes data to file.
+
+        Parameters
+        ----------
+        data : Any
+            data to write to the file
+        
+        Returns
+        -------
+        bool
+            True,  if the data was written to the file successfully |
+            False, otherwise
+        """
+
+        return self.extention.write(data)
