@@ -22,22 +22,19 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 # in project
-from classes.file_handler import FileHandler
-from classes.file_json import JSONFile
+from classes import *
 
 
-SCRIPT_ROOT = sys.path[0]
-FILE_PATH_VILLAGER_DATA = os.path.join(SCRIPT_ROOT, 'data', 'villager-data.json')
-FILE_PATH_OUTPUT = os.path.join(SCRIPT_ROOT, 'data', 'data-output.txt')
-DEVELOPING = True
+# constants
 MAX_WIDTH = 80
-CONFIG = {
+VILLAGER_DATA = FileHandler('villager-data.json', JSONFile)
+SAVED_DATA = FileHandler('data-output.txt', TxtFile)
+CONFIG = FileHandler('config.yaml', YAMLFile)
+CONFIG_DICT = {
     'display-mode'     : 'simple',  # controls the display mode of data
     'display-job-site' : False
 }
-VILLAGER_DATA = FileHandler('villager-data.json', JSONFile())
-# SAVED_DATA = FileHandler('data-output.txt', TxtFile())
-# CONFIG = FileHandler('config.yaml', YAMLFile(), '')
+
 
 
 #################################################
@@ -45,7 +42,9 @@ VILLAGER_DATA = FileHandler('villager-data.json', JSONFile())
 #################################################
 
 def main() -> None:
-    """Driver function, runs the main script loop"""
+    """
+    Driver function, runs the main script loop.
+    """
 
     # if command line args were given, exit program after done
     if handle_args():
@@ -56,8 +55,8 @@ def main() -> None:
     clear()
     print(  
             'Welcome to Minecraft Villager Trade Data!\n'+ 
-            'This script saves villager trade data from the Minecraft Wiki ' +
-            'in a JSON file for use with this script,\n' +
+            'This script saves villager trade data from the Minecraft ' +
+            'Wiki in a JSON file for use with this script,\n' +
             'so that you can view the information offline.\n' +
             'The script will automatically ' +
             'create the file for you if it does not exist.\n'
