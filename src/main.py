@@ -19,7 +19,7 @@ from typing import TextIO, Any
 
 # install required
 import requests
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag, PageElement
 
 # in project
 from classes import *
@@ -39,22 +39,23 @@ SAVED_DATA = FileHandler('data-output.txt', TxtFile)
 
 # set up default config file
 CONFIG_DATA = FileHandler('config.yaml', YAMLFile)
-if not CONFIG_DATA.file_exists():
+# set up default config if file is empty
+if CONFIG_DATA.is_empty():
     CONFIG_DICT = {
         'display-mode'     : 'simple',
         'display-job-site' : False
     }
+    CONFIG_DATA.write(CONFIG_DICT)
+
 else:
-    # set up default config if file is empty
-    if os.stat(CONFIG_DATA.path).st_size == 0:
+    data = CONFIG_DATA.read()
+    if data is None:
         CONFIG_DICT = {
             'display-mode'     : 'simple',
             'display-job-site' : False
         }
-        CONFIG_DATA.write(CONFIG_DICT)
-
     else:
-        CONFIG_DICT = CONFIG_DATA.read()
+        CONFIG_DICT = data
 
     
 
@@ -136,14 +137,14 @@ def display_all_trades() -> None:
     Displays all villager trades to the user.
     """
     
-    file = get_data()
+    data = get_data()
 
-    if file is None:
+    if data is None:
         print('Exiting...')
         exit(1)
 
-    display_data(file)
-    prompt_to_save(file)
+    display_data(data)
+    prompt_to_save(data)
 
     return
 
@@ -341,37 +342,40 @@ def handle_args() -> bool:
     return True
 
 
-def get_data() -> list[dict]:
-    """Gets the file containing villager info
+def get_data() -> list[dict[str, Any]] | None:
+    """
+    Gets the list of dictionaries containing villager info.
 
     Returns
     -------
-    list
+    list[dict[str, Any]]
         list of dicts containing villager data
     """
 
-    if not os.path.isfile(FILE_PATH_VILLAGER_DATA):
-        if not create_dir() or not create_file(FILE_PATH_VILLAGER_DATA):
+    data = VILLAGER_DATA.read()
+    if data is None:
+        dom = connect()
+        if dom is None:
             return None
+        
+        job_sites, trade_tables = get_list(dom)
+        data = make_into_dicts(job_sites, trade_tables)
+        VILLAGER_DATA.write(data)
 
-        with open(FILE_PATH_VILLAGER_DATA, 'w') as f:
-            dom = connect()
-            job_sites, trade_tables = get_list(dom)
-            data = make_into_dicts(job_sites, trade_tables)
-            write_to_file_json(f, data)
-
-    return open_file_json(FILE_PATH_VILLAGER_DATA)
+    return data
 
 
-def prompt_to_save(data: list[dict], path: str=FILE_PATH_OUTPUT) -> None:
-    """Prompt the user to save the console output to a file
+def prompt_to_save(data: list[dict[str, Any]], 
+                   file: FileHandler=SAVED_DATA) -> None:
+    """
+    Prompt the user to save the console output to a file.
 
     Parameters
     ----------
-    data : list[dict]
+    data : list[dict[str, Any]]
         the data to be saved
-    path : str
-        the path of the file to save into
+    file : FileHandler
+        where the data should be saved
     """
 
     option = display_options(
@@ -379,13 +383,12 @@ def prompt_to_save(data: list[dict], path: str=FILE_PATH_OUTPUT) -> None:
         [
             'Yes',
             'No'
-        ],
-        backable=False
+        ]
     )
 
     if option == 1:
-        if create_file(path):
-            with open(path, 'w') as f:
+        if file.file_exists():
+            with open(file.path, 'w') as f:
                 out = sys.stdout
                 sys.stdout = f
                 display_data(data)
@@ -650,25 +653,33 @@ def write_to_file_txt(file: TextIO, data: list[str]) -> None:
 #              Connecting and DOM               #
 #################################################
 
-def connect() -> BeautifulSoup:
-    """Connects to the Minecraft Wiki Trading page
+def connect() -> BeautifulSoup | None:
+    """
+    Connects to the Minecraft Wiki Trading page.
 
     Returns
     -------
     BeautifulSoup
-        a BeautifulSoup object representing the DOM of the website
+        a BeautifulSoup object representing the DOM of the website |
+        None, if there was an error connecting to the website
     """
 
     URL = "https://minecraft.fandom.com/wiki/Trading"
-    page = requests.get(URL)
+    soup = None
+    try:
+        page = requests.get(URL)
+        soup = BeautifulSoup(page.content, "html.parser")
+    
+    except requests.exceptions.ConnectionError as e:
+        handle_error(e, 'main.connect()', 'error connecting to wiki')
 
-    soup = BeautifulSoup(page.content, "html.parser")
-
-    return soup
+    finally: 
+        return soup
 
 
 def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
-    """Parses the DOM to get the required tables and job sites
+    """
+    Parses the DOM to get the required tables and job sites.
 
     Parameters
     ----------
@@ -677,7 +688,7 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
 
     Returns
     -------
-    tuple[list[str], list[Tag]
+    tuple[list[str], list[Tag]]
         a tuple that contains both job sites and trade tables
     """
 
@@ -688,24 +699,26 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
     job_sites_span = dom.select(
         'h3 ~ p > a[href^="/wiki/"] > span > span.sprite-text'
     )
-
     job_sites = []
     for job in job_sites_span:
         job_sites.append(job.get_text().lower())
-
-    job_sites = job_sites[:13]
 
     # get tables related to villager trades
     tables = dom.select('h3 + p + figure + table.wikitable')
 
     # get mason table (due to extra note making it not appear before)
     mason_table = dom.select_one('h3 + p + figure + div + table.wikitable')
+
+    # only get the Java job sites and villager trades
+    job_sites = job_sites[:13]
     tables = tables[:13]
 
     # shift array down and place mason in right position
     for i in range(len(tables) - 1, 8, -1):
         tables[i] = tables[i-1]
-    tables[9] = mason_table
+
+    if mason_table is not None:
+        tables[9] = mason_table
 
     return (job_sites, tables)
 
@@ -744,8 +757,10 @@ JSON format of villager records
     ]
 }
 '''
-def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
-    """Traverses the tables to assemble the JSON for storage
+def make_into_dicts(job_sites: list[str], 
+                    data: list[Tag]) -> list[dict[str, Any]]:
+    """
+    Traverses the tables to assemble the JSON for storage.
 
     Parameters
     ----------
@@ -756,7 +771,7 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
 
     Returns
     -------
-    list[dict]
+    list[dict[str, Any]]
         a list of dicts holding the data of villager trades
     """
 
@@ -907,13 +922,14 @@ def make_into_dicts(job_sites: list[str], data: list[Tag]) -> list[dict]:
 #                    Display                    #
 #################################################
 
-def display_data(villagers: list[dict]) -> None:
-    """Displays the given villager data
+def display_data(villagers: list[dict[str, Any]]) -> None:
+    """
+    Displays the given villager data.
 
     Parameters
     ----------
-    villagers : list[dict]
-        list of infomation regarding villager trades to be printed
+    villagers : list[dict[str, Any]]
+        list of information regarding villager trades to be printed
     """
 
     display_mode = CONFIG_DICT['display-mode']
@@ -923,7 +939,12 @@ def display_data(villagers: list[dict]) -> None:
         print_centered( '+--------------------------------------+')
         print_centered(f'|{profession["profession"].title().center(38)}|')
         if display_job_site:
-            print_centered('|' + f'Job Site: {profession["job-site-block"].title()}'.center(38) + '|')
+            print_centered(
+                           '|' + 
+                           f'Job Site: {profession["job-site-block"].title()}'
+                           .center(38) + 
+                           '|'
+                           )
         print_centered( '+--------------------------------------+')
 
         trades = profession['trades']
@@ -947,7 +968,9 @@ def display_data(villagers: list[dict]) -> None:
 
                 for i in range(len(wanted['item'])):
                     wanted_parts.append(
-                        wanted['default-quantity'][i] + ' ' + wanted['item'][i])
+                        wanted['default-quantity'][i] + ' ' + 
+                        wanted['item'][i]
+                        )
 
                 wanted_string = ', '.join(wanted_parts)
                 given_string = given['quantity'] + ' ' + given['item']

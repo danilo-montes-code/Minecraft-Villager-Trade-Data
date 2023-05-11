@@ -37,6 +37,8 @@ class FileHandler:
         creates file at the location of the fn attribute
     file_exists():
         determines if file already exists
+    is_empty():
+        determines if file is empty
     read():
         opens file and returns its data
     write(data):
@@ -145,17 +147,32 @@ class FileHandler:
         return os.path.isfile(self.path)
     
 
-    def read(self) -> Any:
+    def is_empty(self) -> bool:
+        """
+        Determins if file is empty.
+
+        Returns
+        -------
+        bool
+            True,  if file is empty |
+            False, otherwise
+        """
+
+        return os.stat(self.path).st_size == 0
+    
+
+    def read(self) -> Any | None:
         """
         Opens file and returns its data.
 
         Returns
         -------
         Any
-            the data held in the file
+            the data held in the file | 
+            None, if file is empty
         """
 
-        return self.extention.read()
+        return self.extention.read() if not self.is_empty() else None
     
 
     def write(self, data: Any) -> bool:

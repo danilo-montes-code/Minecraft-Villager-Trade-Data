@@ -49,7 +49,8 @@ class JSONFile(FileExtension):
         Returns
         -------
         Any
-            the data contained in the file | None is there was an error
+            the data contained in the file | 
+            None is there was an error
         """
 
         data = None
