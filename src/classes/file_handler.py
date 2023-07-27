@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Type, Any
 
 # in project
-from file_extension import FileExtension
-from useful_methods import *
+from .file_extension import FileExtension
+from .useful_methods import *
 
 
 # constants

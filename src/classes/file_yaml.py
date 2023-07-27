@@ -8,8 +8,8 @@ import yaml
 from typing import Any
 
 # in project
-from file_extension import FileExtension
-from useful_methods import *
+from .file_extension import FileExtension
+from .useful_methods import *
 
 
 class YAMLFile(FileExtension):

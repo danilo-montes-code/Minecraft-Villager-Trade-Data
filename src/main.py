@@ -54,6 +54,7 @@ else:
             'display-mode'     : 'simple',
             'display-job-site' : False
         }
+        CONFIG_DATA.write(CONFIG_DICT)
     else:
         CONFIG_DICT = data
 
@@ -150,7 +151,9 @@ def display_all_trades() -> None:
 
 
 def search() -> None:
-    """Enables the user to search for a trade based on criteria"""
+    """
+    Enables the user to search for a trade based on criteria.
+    """
 
     clear()
     
@@ -1063,6 +1066,7 @@ def display_options(
             if backable and option == 0:
                 continue
             if option < 1 or option > last_option:
+                option = -1
                 raise TypeError('number out of bounds')
         
         except Exception as e:

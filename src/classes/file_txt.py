@@ -7,8 +7,8 @@ Contains a class that handles txt file IO.
 from typing import Any
 
 # in project
-from file_extension import FileExtension
-from useful_methods import *
+from .file_extension import FileExtension
+from .useful_methods import *
 
 
 class TxtFile(FileExtension):
