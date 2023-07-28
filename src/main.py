@@ -1,4 +1,5 @@
-"""Minecraft Villager Trade Data
+"""
+Minecraft Villager Trade Data
 
 This script connects to the Minecraft wiki, parses the villager trade
 information, and saves it to a file for offline viewing.
@@ -185,7 +186,9 @@ def search() -> None:
 
 
 def check_for_updates() -> None:
-    """Checks for discrepancies between local and wiki data"""
+    """
+    Checks for discrepancies between local and wiki data.
+    """
     
     clear()
 
@@ -377,7 +380,7 @@ def prompt_to_save(data: list[dict[str, Any]],
     ----------
     data : list[dict[str, Any]]
         the data to be saved
-    file : FileHandler
+    file : FileHandler, default = SAVED_DATA
         where the data should be saved
     """
 
@@ -403,7 +406,8 @@ def prompt_to_save(data: list[dict[str, Any]],
 
 
 def execute_search(choice: int, queries: tuple[str]) -> None:
-    """Gets the data and performs the search based on given queries
+    """
+    Gets the data and performs the search based on given queries
     
     Parameters
     ----------
@@ -460,14 +464,14 @@ def execute_search(choice: int, queries: tuple[str]) -> None:
                                 temp_trade_level['exchanges'].append(exchange)
                                 break
                     
-                if temp_trade_level['exchanges'] != []:
+                if temp_trade_level['exchanges']:
                     temp_prof['trades'].append(temp_trade_level)
 
-            if temp_prof['trades'] != []:
+            if temp_prof['trades']:
                 results.append(temp_prof)
                     
     
-    if results == []:
+    if not results:
         print('no results found')
         etc()
     else:        
@@ -1062,7 +1066,7 @@ def display_options(
             print(f' ({i+1}) {options[i]}')
 
         try:
-            option = int(input())
+            option = int(input('> '))
             if backable and option == 0:
                 continue
             if option < 1 or option > last_option:
