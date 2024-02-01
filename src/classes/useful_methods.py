@@ -49,7 +49,7 @@ def etc() -> None:
     return
 
 
-def print_internal(text: Any, display_error_notice: bool) -> None:
+def print_internal(text: Any, display_error_notice: bool=False) -> None:
     """
     Prints a message with an indent indicating an internal message,
     a message that appears during setup of the script.
@@ -58,6 +58,9 @@ def print_internal(text: Any, display_error_notice: bool) -> None:
     ----------
     text : Any
         the data to display
+    display_error_notice : bool, default=False
+        true if "[ERROR]" prefix is desired
+        false if "]" prefix is desired
     """
 
     if display_error_notice:

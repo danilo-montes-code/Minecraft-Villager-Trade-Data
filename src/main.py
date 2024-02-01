@@ -838,7 +838,7 @@ def make_into_dicts(job_sites: list[str],
                     first_row = False
 
                 # actually get the trade info
-                remove_notes = '\[note \d+\]'
+                remove_notes = '\\[note \\d+\\]'
 
                 wanted = columns[0]
                 # if there are multiple items wanted for a trade

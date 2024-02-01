@@ -118,7 +118,7 @@ class FileHandler:
         val = False
         try:
             if FileHandler.create_dir():
-                with open(self.path, 'w'):
+                with open(self.path, 'a+'):
                     val = True
 
         except IOError as e:
