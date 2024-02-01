@@ -30,9 +30,9 @@ def handle_error(error: Exception,
     """
 
     if DEVELOPING:
-        print_internal('Error in function: ' + function)
-        print_internal(type(error))
-        print_internal(error)
+        print_internal('Error in function: ' + function, True)
+        print_internal(type(error), True)
+        print_internal(error, True)
     else:
         print_internal(default_error)
 
