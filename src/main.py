@@ -142,6 +142,9 @@ def display_all_trades() -> None:
     data = get_data()
 
     if data is None:
+        handle_error('No data was obtained from call to get_data()',
+                     'Main.display_all_trades()',
+                     'error obtaining data')
         print('Exiting...')
         exit(1)
 
@@ -368,7 +371,7 @@ def get_data() -> list[dict[str, Any]] | None:
         data = make_into_dicts(job_sites, trade_tables)
         VILLAGER_DATA.write(data)
 
-    return data
+    return data if data != [] else None
 
 
 def prompt_to_save(data: list[dict[str, Any]], 
@@ -674,7 +677,16 @@ def connect() -> BeautifulSoup | None:
     URL = "https://minecraft.fandom.com/wiki/Trading"
     soup = None
     try:
-        page = requests.get(URL)
+        # https://www.zenrows.com/blog/403-web-scraping#complete-your-headers
+        # needed to imitate a full browser request to prevent 403 error
+        headers = {
+            'authority': 'www.google.com',
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'accept-language': 'en-US,en;q=0.9',
+            'cache-control': 'max-age=0',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        }
+        page = requests.get(URL, headers=headers)
         soup = BeautifulSoup(page.content, "html.parser")
     
     except requests.exceptions.ConnectionError as e:
@@ -703,12 +715,19 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
     ##### simple as it should be
 
     # get job sites for each profession
+    # job_sites_span = dom.select(
+    #     'h3 ~ p > a[href^="/wiki/"] > span > span.sprite-text'
+    # )
     job_sites_span = dom.select(
-        'h3 ~ p > a[href^="/wiki/"] > span > span.sprite-text'
+        '[href^="/wiki/"]'
     )
     job_sites = []
     for job in job_sites_span:
         job_sites.append(job.get_text().lower())
+
+    print(dom.prettify())
+    print(job_sites_span)
+    print(job_sites)
 
     # get tables related to villager trades
     tables = dom.select('h3 + p + figure + table.wikitable')
