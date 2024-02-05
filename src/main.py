@@ -715,22 +715,29 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
     ##### simple as it should be
 
     # get job sites for each profession
-    # job_sites_span = dom.select(
-    #     'h3 ~ p > a[href^="/wiki/"] > span > span.sprite-text'
-    # )
+    # misses:
+    #   mason
+    #   librarian
     job_sites_span = dom.select(
-        '[href^="/wiki/"]'
+        'h3 ~ p > a[href^="/wiki/"] > span > span.sprite-text'
     )
+
     job_sites = []
     for job in job_sites_span:
         job_sites.append(job.get_text().lower())
 
-    print(dom.prettify())
-    print(job_sites_span)
-    print(job_sites)
+    # print(job_sites)
 
     # get tables related to villager trades
     tables = dom.select('h3 + p + figure + table.wikitable')
+    # tables = dom.select('div.table-wide + h3')
+    # tables = dom.select('div.table-wide')
+
+    # for job in jobs:
+    #     dom.select(f'table.wikitable[data-description^="{job}"]')
+    
+    print('tables')
+    print(tables)
 
     # get mason table (due to extra note making it not appear before)
     mason_table = dom.select_one('h3 + p + figure + div + table.wikitable')
