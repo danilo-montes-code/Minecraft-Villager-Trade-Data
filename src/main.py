@@ -196,11 +196,13 @@ def check_for_updates() -> None:
     clear()
 
     # verify that file exists to compare in the first place
-    if not os.path.isfile(FILE_PATH_VILLAGER_DATA):
+    if VILLAGER_DATA.file_exists() and VILLAGER_DATA.is_empty():
         print(
             'There is no file to compare to, please first select ' +
             'option 1 on the main menu' 
         )
+
+        etc()
         return
     
     file = get_data()
@@ -229,8 +231,7 @@ def check_for_updates() -> None:
         )
 
         if choice == 1:
-            with open(FILE_PATH_VILLAGER_DATA, 'w') as f:
-                write_to_file_json(f, data)
+            VILLAGER_DATA.write(data)
             print('data updated')
 
     etc()
