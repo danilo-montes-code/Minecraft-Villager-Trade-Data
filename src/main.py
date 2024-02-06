@@ -40,24 +40,19 @@ SAVED_DATA = FileHandler('data-output.txt', TxtFile)
 
 # set up default config file
 CONFIG_DATA = FileHandler('config.yaml', YAMLFile)
+CONFIG_DEFAULT = {
+    'display-mode'     : 'simple',
+    'display-job-site' : False
+}
 # set up default config if file is empty
 if CONFIG_DATA.is_empty():
-    CONFIG_DICT = {
-        'display-mode'     : 'simple',
-        'display-job-site' : False
-    }
+    CONFIG_DICT = CONFIG_DEFAULT
     CONFIG_DATA.write(CONFIG_DICT)
-
 else:
-    data = CONFIG_DATA.read()
-    if data is None:
-        CONFIG_DICT = {
-            'display-mode'     : 'simple',
-            'display-job-site' : False
-        }
+    CONFIG_DICT = CONFIG_DATA.read()
+    if CONFIG_DICT is None:
+        CONFIG_DICT = CONFIG_DEFAULT
         CONFIG_DATA.write(CONFIG_DICT)
-    else:
-        CONFIG_DICT = data
 
     
 
@@ -294,6 +289,7 @@ def change_display_mode() -> None:
         CONFIG_DICT['display-mode'] = options[choice-1].lower()
         print(f'Display mode now: {CONFIG_DICT["display-mode"]}')
 
+    CONFIG_DATA.write(CONFIG_DICT)
     etc()
     clear()
     return
