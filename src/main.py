@@ -713,11 +713,9 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
 
     ##### The wiki is *very* annoyingly formatted so parsing isn't as
     ##### simple as it should be
+    ##### okay i formatted it better now but still like why
 
     # get job sites for each profession
-    # misses:
-    #   mason
-    #   librarian
     job_sites_span = dom.select(
         'h3 ~ p > a[href^="/wiki/"] > span > span.sprite-text'
     )
@@ -726,40 +724,12 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
     for job in job_sites_span:
         job_sites.append(job.get_text().lower())
 
-    # print(job_sites)
+    # only get the Java job sites
+    job_sites = job_sites[:13]
 
     # get tables related to villager trades
-    tables = dom.select('h3 + p + figure + table.wikitable')
-    # tables = dom.select('div.table-wide + h3')
-    # tables = dom.select('div.table-wide')
-
-    save_log('dom', dom)
-    print(len(tables))
-
-    # for job in jobs:
-    #     dom.select(f'table.wikitable[data-description^="{job}"]')
-    
-    # print('tables')
-    # print(tables)
-
-    # get mason table (due to extra note making it not appear before)
-    mason_table = dom.select_one('h3 + p + figure + div + table.wikitable')
-    print(mason_table)
-
-    # get librarian table (due to extra header making it not appear before)
-    librarian_table = dom.select_one('h3 + p + figure + div + dl + table.wikitable')
-    print(librarian_table)
-
-    # only get the Java job sites and villager trades
-    job_sites = job_sites[:13]
-    tables = tables[:13]
-
-    # shift array down and place mason in right position
-    for i in range(len(tables) - 1, 8, -1):
-        tables[i] = tables[i-1]
-
-    if mason_table is not None:
-        tables[9] = mason_table
+    tables = dom.select('table.wikitable')
+    tables = tables[1:10] + tables[12:16]
 
     return (job_sites, tables)
 
