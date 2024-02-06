@@ -14,13 +14,13 @@ Dependencies:
 """
 
 # python native
-import json, os.path, sys, re, getopt
+import json, sys, re, getopt
 from pathlib import Path
 from typing import TextIO, Any
 
 # install required
 import requests
-from bs4 import BeautifulSoup, Tag, PageElement
+from bs4 import BeautifulSoup, Tag
 
 # in project
 from classes import *
