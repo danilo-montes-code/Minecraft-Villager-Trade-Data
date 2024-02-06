@@ -733,14 +733,22 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
     # tables = dom.select('div.table-wide + h3')
     # tables = dom.select('div.table-wide')
 
+    save_log('dom', dom)
+    print(len(tables))
+
     # for job in jobs:
     #     dom.select(f'table.wikitable[data-description^="{job}"]')
     
-    print('tables')
-    print(tables)
+    # print('tables')
+    # print(tables)
 
     # get mason table (due to extra note making it not appear before)
     mason_table = dom.select_one('h3 + p + figure + div + table.wikitable')
+    print(mason_table)
+
+    # get librarian table (due to extra header making it not appear before)
+    librarian_table = dom.select_one('h3 + p + figure + div + dl + table.wikitable')
+    print(librarian_table)
 
     # only get the Java job sites and villager trades
     job_sites = job_sites[:13]

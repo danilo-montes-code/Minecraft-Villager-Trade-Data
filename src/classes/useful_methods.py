@@ -68,3 +68,9 @@ def print_internal(text: Any, display_error_notice: bool=False) -> None:
     else:
         print(f'] {text}')
     return
+
+
+
+def save_log(filename: str, data: Any) -> None:
+    with open(filename, 'a+', encoding="utf-8") as f:
+        f.write(str(data))
