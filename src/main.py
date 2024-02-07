@@ -847,32 +847,45 @@ def make_into_dicts(job_sites: list[str],
                     if not (profession == 'fisherman'
                             and trade_level_string == 'master'):
                         item_wanted  = [
-                            re.sub(remove_notes, ' ', item) 
+                            item[:item.index('[')] if '[' in item
+                            else item
                             for item in columns[0]
                             .get_text(separator='\n', strip=True).split('\n')
                         ]
                     # handle case of fisherman trade with 
                     # multiple possible items given
                     else:
-                        res = ' '.join(
+                        items_wanted = ' '.join(
                             columns[0].get_text(separator='\n', strip=True)
                             .split('\n')
                         )
-                        item_wanted  = [re.sub(remove_notes, ' ', res).strip()]
+                        parsed_items = items_wanted.strip()
+                        item_wanted  = [
+                            parsed_items[:parsed_items.index('[')] 
+                            if '[' in parsed_items
+                            else parsed_items
+                        ]
 
                     default_quantity = [
-                        re.sub(remove_notes, ' ', quantity)
+                        quantity[:quantity.index('[')] if '[' in quantity
+                        else quantity
                         for quantity 
                         in columns[1].get_text(separator='\n', strip=True)
                         .split('\n')
                     ]
-                else: 
-                    item_wanted       = [re.sub(remove_notes, ' ', 
-                                                columns[0]
-                                                .get_text(strip=True)).strip()]
-                    default_quantity  = [re.sub(remove_notes, ' ', 
-                                                columns[1]
-                                                .get_text(strip=True)).strip()]
+                else:
+                    parsed_item = columns[0].get_text(strip=True).strip()
+                    item_wanted = [
+                        parsed_item[:parsed_item.index('[')] 
+                        if '[' in parsed_item
+                        else parsed_item
+                    ]
+                    parsed_quantity = columns[1].get_text(strip=True).strip()
+                    default_quantity = [
+                        parsed_quantity[:parsed_quantity.index('[')] 
+                        if '[' in parsed_quantity
+                        else parsed_quantity
+                    ]
 
                 price_multiplier      = re.sub(remove_notes, ' ', 
                                                columns[2]
@@ -880,10 +893,10 @@ def make_into_dicts(job_sites: list[str],
 
                 give = columns[3]
                 if give.find('br'):
-                    res = ' '.join(
+                    items_wanted = ' '.join(
                         give.get_text(separator='\n', strip=True).split('\n')
                     )
-                    item_given        = re.sub(remove_notes, ' ', res).strip()
+                    item_given        = re.sub(remove_notes, ' ', items_wanted).strip()
                 else:
                     item_given        = re.sub(remove_notes, ' ', 
                                                columns[3]
