@@ -684,7 +684,7 @@ def connect() -> BeautifulSoup | None:
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
         }
         page = requests.get(URL, headers=headers)
-        soup = BeautifulSoup(page.content, "html.parser")
+        soup = BeautifulSoup(page.content, 'html.parser')
     
     except requests.exceptions.ConnectionError as e:
         handle_error(e, 'main.connect()', 'error connecting to wiki')
@@ -711,6 +711,10 @@ def get_list(dom: BeautifulSoup) -> tuple[list[str], list[Tag]]:
     ##### The wiki is *very* annoyingly formatted so parsing isn't as
     ##### simple as it should be
     ##### okay i formatted it better now but still like why
+
+    ##### the encoding to view the hyphen characters is
+    ##### windows 1252, otherwise it will be a question mark 
+    ##### IN THE VIEW NOT IN THE FILE
 
     # get job sites for each profession
     job_sites_span = dom.select(
@@ -783,6 +787,34 @@ def make_into_dicts(job_sites: list[str],
         a list of dicts holding the data of villager trades
     """
 
+    remove_notes = '\\[note \\d+\\]'
+    def remove_excess_text(text: str, stop_character: str = '[') -> str:
+        """
+        Preserves text in given text up to the first instance of a given
+        stop character (exclusive).
+
+        Parameters
+        ----------
+        text : str
+            the text to strip
+        stop_character : str, default='['
+            the character to stop at
+
+        Returns
+        -------
+        str
+            the stripped text
+        """
+
+        
+        text = re.sub(remove_notes, ' ', text).strip()
+
+        return text[:text.index(stop_character)].strip() \
+        if stop_character in text \
+        else text.strip()
+
+
+
     villager_data = []  # stores all the villager trade data
 
     # traverse the tables
@@ -838,17 +870,13 @@ def make_into_dicts(job_sites: list[str],
                     columns = columns[1:]
                     first_row = False
 
-                # actually get the trade info
-                remove_notes = '\\[note \\d+\\]'
-
                 wanted = columns[0]
                 # if there are multiple items wanted for a trade
                 if wanted.find('br'):
                     if not (profession == 'fisherman'
                             and trade_level_string == 'master'):
                         item_wanted  = [
-                            item[:item.index('[')] if '[' in item
-                            else item
+                            remove_excess_text(item)
                             for item in columns[0]
                             .get_text(separator='\n', strip=True).split('\n')
                         ]
@@ -861,14 +889,11 @@ def make_into_dicts(job_sites: list[str],
                         )
                         parsed_items = items_wanted.strip()
                         item_wanted  = [
-                            parsed_items[:parsed_items.index('[')] 
-                            if '[' in parsed_items
-                            else parsed_items
+                            remove_excess_text(parsed_items)
                         ]
 
                     default_quantity = [
-                        quantity[:quantity.index('[')] if '[' in quantity
-                        else quantity
+                        remove_excess_text(quantity)
                         for quantity 
                         in columns[1].get_text(separator='\n', strip=True)
                         .split('\n')
@@ -876,40 +901,35 @@ def make_into_dicts(job_sites: list[str],
                 else:
                     parsed_item = columns[0].get_text(strip=True).strip()
                     item_wanted = [
-                        parsed_item[:parsed_item.index('[')] 
-                        if '[' in parsed_item
-                        else parsed_item
+                        remove_excess_text(parsed_item)
                     ]
                     parsed_quantity = columns[1].get_text(strip=True).strip()
                     default_quantity = [
-                        parsed_quantity[:parsed_quantity.index('[')] 
-                        if '[' in parsed_quantity
-                        else parsed_quantity
+                        remove_excess_text(parsed_quantity)
                     ]
-
-                price_multiplier      = re.sub(remove_notes, ' ', 
-                                               columns[2]
-                                               .get_text(strip=True)).strip()
+                
+                parsed_multiplier = columns[2].get_text(strip=True).strip()
+                price_multiplier  = remove_excess_text(parsed_multiplier)
 
                 give = columns[3]
                 if give.find('br'):
                     items_wanted = ' '.join(
                         give.get_text(separator='\n', strip=True).split('\n')
                     )
-                    item_given        = re.sub(remove_notes, ' ', items_wanted).strip()
+                    item_given = remove_excess_text(items_wanted)
                 else:
-                    item_given        = re.sub(remove_notes, ' ', 
-                                               columns[3]
-                                               .get_text(strip=True)).strip()
-                quantity              = re.sub(remove_notes, ' ', 
-                                               columns[4]
-                                               .get_text(strip=True)).strip()
-                trades_until_disabled = re.sub(remove_notes, ' ', 
-                                               columns[5]
-                                               .get_text(strip=True)).strip()
-                xp_to_villager        = re.sub(remove_notes, ' ', 
-                                               columns[6]
-                                               .get_text(strip=True)).strip()
+                    item_parsed = columns[3].get_text(strip=True).strip()
+                    item_given  = remove_excess_text(item_parsed)
+
+                quantity              = remove_excess_text(
+                                            columns[4].get_text(strip=True)
+                                        )
+                trades_until_disabled = remove_excess_text(
+                                            columns[5].get_text(strip=True)
+                                        )
+                xp_to_villager        = remove_excess_text(
+                                            columns[6].get_text(strip=True)
+                                        )
 
                 exchange_info['wanted'] = {
                     'item'             : item_wanted,
