@@ -340,9 +340,6 @@ def handle_args() -> bool:
     flag = options[0][0]
     flags = ['', '-w', '-g', '-p']
 
-    print(flag)
-    print(queries)
-
     execute_search(flags.index(flag), queries)
 
     return True

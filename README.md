@@ -11,14 +11,14 @@ This is a command line tool.
 * ask to write output to a file
 * start menu
     * display all trades
-    * search by item wanted
-    * search by item given
+    * search by item wanted by villager
+    * search by item given by villager
     * search by profession
     * check for updates
         * update data
 * different display options (simple, complex, full)
 * command line args for quick use
-    
+
 
 ## Using the script
 Download the code, and in the base directory, `/Minecraft-Villager-Trade-Data-1.x.x`, create the virtual environment and install dependencies:
@@ -36,6 +36,31 @@ Navigate to the `src` directory and run the script:
 $ cd src
 $ py main.py
 ```
+
+
+## Command line args
+To avoid having to navigate the menus, you can provide command line arguments to make a query run immediately. Supply arguments as follows:
+```sh
+$ py main.py [ARG] [QUERIES,]
+```
+* ARG - argument flag for the requested operation
+* QUERIES - list of queries given to the respective operation
+
+**ARG**
+* -w : search for item wanted by villager
+* -g : search for item given by villager
+* -p : search for profession
+
+**QUERIES**
+* space separated list of items/jobs to search for
+* *terms with spaces surrounded with double quotes*
+
+Example Usage
+```sh
+$ py main.py -p mason
+$ py main.py -g "enchanted diamond"
+```
+
 
 ## Installing Python
 Ensure you have Python installed (this script has been checked to work with Python 1.12.1, but it should also work with other Python versions). Follow [this guide](https://gist.github.com/danilo-montes/2a2239035e689dfeafa0b7a59fed8c60) to install Python if you don't have it (Python does not come by default in Windows, so you probably need to install it). 
@@ -62,6 +87,3 @@ Then, to run the script:
 cd src
 py main.py
 ```
-
-## Planned Features
-* grouping functions in classes, moving script to src/.../ format
